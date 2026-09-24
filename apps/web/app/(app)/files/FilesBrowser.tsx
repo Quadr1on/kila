@@ -1,12 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, formatBytes, formatTime, notifyLedgerChanged, shortMime } from "@/lib/api";
+import { GridIcon, ListIcon } from "@/components/icons";
+import { ApiError, notifyLedgerChanged } from "@/lib/api";
 import { storage, type BucketInfo, type BucketName, type StoredObject } from "@/lib/storage";
+import { DropZone } from "./DropZone";
+import { FileList, type ViewMode } from "./FileList";
 import { FilePreview } from "./FilePreview";
 
 const HIDDEN_BUCKETS: BucketName[] = ["thumbnails"]; // derived previews, not user files
 const ORDER: BucketName[] = ["uploads", "kb", "pid", "deliverables", "models"];
+
+const VIEW_KEY = "kila.files.view";
 
 type UploadRow = { key: string; name: string; state: "uploading" | "done" | "error"; detail?: string };
 
@@ -17,8 +22,26 @@ export function FilesBrowser() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StoredObject | null>(null);
   const [uploads, setUploads] = useState<UploadRow[]>([]);
-  const [dragging, setDragging] = useState(false);
+  const [view, setView] = useState<ViewMode>("list");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // View preference is a per-browser convenience; storage may be unavailable.
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      if (v === "list" || v === "grid") setView(v);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  function chooseView(v: ViewMode) {
+    setView(v);
+    try {
+      localStorage.setItem(VIEW_KEY, v);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const current = buckets.find((b) => b.name === bucket);
 
@@ -102,15 +125,34 @@ export function FilesBrowser() {
             </button>
           ))}
         </div>
-        {current?.can_write && (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="mb-2 bg-control px-4 py-1.5 font-medium text-control-ink"
-          >
-            Upload files
-          </button>
-        )}
+        <div className="mb-2 flex items-center gap-2">
+          <div role="group" aria-label="View" className="flex border border-rule">
+            {(["list", "grid"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                aria-label={v === "list" ? "List view" : "Grid view"}
+                title={v === "list" ? "List view" : "Grid view"}
+                onClick={() => chooseView(v)}
+                className={`flex h-8 w-8 items-center justify-center transition-colors ${
+                  view === v ? "bg-sunk text-ink" : "text-muted hover:text-ink"
+                }`}
+              >
+                {v === "list" ? <ListIcon /> : <GridIcon />}
+              </button>
+            ))}
+          </div>
+          {current?.can_write && (
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="h-8 bg-control px-4 font-medium text-control-ink"
+            >
+              Upload files
+            </button>
+          )}
+        </div>
         <input
           ref={inputRef}
           type="file"
@@ -124,24 +166,7 @@ export function FilesBrowser() {
       </div>
 
       {current?.can_write ? (
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            uploadFiles(e.dataTransfer.files);
-          }}
-          className={`mt-4 border border-dashed px-4 py-3 text-sm ${
-            dragging ? "border-control bg-sheet text-ink" : "border-rule text-muted"
-          }`}
-        >
-          Drop scans, PDFs, spreadsheets or code here to add them to <span className="font-mono">{bucket}</span>. Each
-          file is hashed (SHA-256), stored once, and recorded in the audit ledger.
-        </div>
+        <DropZone bucket={bucket} onFiles={uploadFiles} onPick={() => inputRef.current?.click()} />
       ) : (
         current && (
           <p className="mt-4 text-sm text-muted">
@@ -176,7 +201,15 @@ export function FilesBrowser() {
       )}
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_440px]">
-        <ObjectTable objects={objects} selected={selected} onSelect={setSelected} bucket={bucket} />
+        <FileList
+          objects={objects}
+          selected={selected}
+          onSelect={setSelected}
+          onDelete={remove}
+          canDelete={!!current?.can_write}
+          bucket={bucket}
+          view={view}
+        />
         <FilePreview
           obj={selected}
           canDelete={!!current?.can_write}
@@ -185,93 +218,4 @@ export function FilesBrowser() {
       </div>
     </div>
   );
-}
-
-function ObjectTable({
-  objects,
-  selected,
-  onSelect,
-  bucket,
-}: {
-  objects: StoredObject[] | null;
-  selected: StoredObject | null;
-  onSelect: (o: StoredObject) => void;
-  bucket: string;
-}) {
-  if (objects === null) {
-    return <div className="border border-rule bg-sheet px-4 py-10 text-center text-muted">Loading files…</div>;
-  }
-  if (objects.length === 0) {
-    return (
-      <div className="border border-rule bg-sheet px-4 py-10 text-center">
-        <p className="font-medium">No files in {bucket} yet</p>
-        <p className="mt-1 text-sm text-muted">Upload a scanned report or drawing to see its preview and audit trail.</p>
-      </div>
-    );
-  }
-  return (
-    <div className="overflow-x-auto border border-rule bg-sheet">
-      <table className="w-full min-w-[640px] text-left text-[13px]">
-        <thead>
-          <tr className="border-b border-rule">
-            <th className="cell-label w-14 px-3 py-2 font-normal" aria-label="Preview" />
-            <th className="cell-label px-3 py-2 font-normal">Name</th>
-            <th className="cell-label px-3 py-2 font-normal">Type</th>
-            <th className="cell-label px-3 py-2 text-right font-normal">Size</th>
-            <th className="cell-label px-3 py-2 font-normal">SHA-256</th>
-            <th className="cell-label px-3 py-2 font-normal">Added</th>
-          </tr>
-        </thead>
-        <tbody>
-          {objects.map((o) => {
-            const active = selected?.object_id === o.object_id;
-            return (
-              <tr
-                key={o.object_id}
-                onClick={() => onSelect(o)}
-                className={`cursor-pointer border-b border-rule last:border-b-0 ${
-                  active ? "bg-sunk" : "hover:bg-sunk/60"
-                }`}
-              >
-                <td className="px-3 py-1.5">
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden border border-rule bg-ground">
-                    {o.thumbnail_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={`/api${o.thumbnail_url}`} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <span className="font-mono text-[10px] uppercase text-muted">{extOf(o.original_name)}</span>
-                    )}
-                  </div>
-                </td>
-                <td className="max-w-[280px] px-3 py-1.5">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect(o);
-                    }}
-                    className={`block truncate text-left ${active ? "font-medium" : ""}`}
-                  >
-                    {o.original_name}
-                  </button>
-                  {o.path !== o.original_name && <div className="truncate text-xs text-muted">{o.path}</div>}
-                </td>
-                <td className="px-3 py-1.5 font-mono text-[12px] text-muted">{shortMime(o.mime)}</td>
-                <td className="tabular whitespace-nowrap px-3 py-1.5 text-right font-mono text-[12px]">{formatBytes(o.size)}</td>
-                <td className="px-3 py-1.5 font-mono text-[12px] text-muted" title={o.sha256}>
-                  {o.sha256.slice(0, 12)}
-                </td>
-                <td className="whitespace-nowrap px-3 py-1.5 text-[12px] text-muted">{formatTime(o.created_at)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function extOf(name: string) {
-  const i = name.lastIndexOf(".");
-  return i > 0 ? name.slice(i + 1, i + 5) : "file";
 }

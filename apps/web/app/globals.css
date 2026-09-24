@@ -98,6 +98,29 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Per-file actions: hidden below their clip box, slide up when the card is hovered or
+ * anything inside it has keyboard focus. Touch screens have no hover, so show them always.
+ */
+.reveal-actions {
+  transform: translateY(110%);
+  opacity: 0;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 160ms ease-out;
+}
+.group:hover .reveal-actions,
+.group:focus-within .reveal-actions {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (hover: none) {
+  .reveal-actions {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
