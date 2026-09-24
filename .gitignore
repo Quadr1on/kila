@@ -1,0 +1,17 @@
+# runtime data (DB, buckets, keys) never goes in git
+/data/
+.env
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+# node
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+# models are pre-downloaded locally, never committed
+/models/
+# generated reports that are regenerated on demand
+/metrics/licence_audit.json

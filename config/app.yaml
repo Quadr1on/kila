@@ -1,0 +1,31 @@
+# KILA application config (Phase 0). Models/router/tools get their own files in later phases.
+
+storage:
+  max_upload_mb: 200
+  signed_url_default_ttl_s: 300
+  signed_url_max_ttl_s: 3600
+  thumbnail_px: 320
+
+  # Bucket-level role checks. Roles: engineer | reviewer | admin.
+  # "system" writes (e.g. rendered deliverables, thumbnails) bypass these checks internally.
+  buckets:
+    uploads:      { read: [engineer, reviewer, admin], write: [engineer, reviewer, admin] }
+    kb:           { read: [engineer, reviewer, admin], write: [engineer, admin] }
+    deliverables: { read: [engineer, reviewer, admin], write: [admin] }
+    pid:          { read: [engineer, reviewer, admin], write: [engineer, admin] }
+    models:       { read: [admin],                     write: [admin] }
+    thumbnails:   { read: [engineer, reviewer, admin], write: [admin] }
+
+  # Reads of these buckets are NOT written to the ledger (derived previews would flood it).
+  # Writes still are. Documented in docs/ARCHITECTURE.md.
+  unlogged_read_buckets: [thumbnails]
+
+auth:
+  session_max_age_s: 43200   # 12 h
+  seed_users:
+    - { name: engineer, role: engineer }
+    - { name: reviewer, role: reviewer }
+    - { name: admin,    role: admin }
+
+ledger:
+  tamper_demo_enabled: true   # admin-only debug endpoint that edits a row directly in SQLite

@@ -1,0 +1,46 @@
+# KILA stack. Build while online (`make setup && docker compose build`), then run offline.
+#
+# Networking (spec §7):
+#   kila_internal  internal: true  -> containers can reach each other, nothing can reach out.
+#   kila_edge      normal bridge   -> exists ONLY so the web UI port can be published to the host.
+# Docker does not publish ports for containers that are only on an internal network, so `web`
+# is dual-homed. `api` (and later qdrant, ollama, sandbox runners) are internal-only; the egress
+# self-test runs from `api`. See docs/ARCHITECTURE.md "Isolation boundary".
+name: kila
+
+services:
+  api:
+    build: { context: services/api }
+    image: kila/api:dev
+    environment:
+      KILA_DATA_DIR: /data
+      KILA_CONFIG_DIR: /app/config
+      KILA_SECRET_KEY: ${KILA_SECRET_KEY:?set KILA_SECRET_KEY in .env}
+      KILA_SEED_PASSWORD: ${KILA_SEED_PASSWORD:-kila-demo}
+      KILA_COOKIE_SECURE: ${KILA_COOKIE_SECURE:-false}
+    volumes:
+      - ./data:/data
+      - ./config:/app/config:ro
+    networks: [kila_internal]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: apps/web
+      args: { KILA_API_URL: "http://api:8000" }
+    image: kila/web:dev
+    environment:
+      KILA_API_URL: http://api:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
+    ports:
+      - "${KILA_BIND:-127.0.0.1}:3000:3000"
+    networks: [kila_internal, kila_edge]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+networks:
+  kila_internal:
+    internal: true
+  kila_edge: {}

@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/*
+ * Palette follows ISA-101 "high-performance HMI" practice used on refinery DCS screens:
+ * a greyscale plant, with colour reserved for state. Blue = something you can operate,
+ * green/red/amber = verified / broken / pending. Nothing is coloured for decoration.
+ */
+:root {
+  --ground: #e3e5e2;
+  --sheet: #f6f7f4;
+  --sunk: #eceeeb;
+  --rule: #b9bfbd;
+  --line: #1a2226;
+  --ink: #1a2226;
+  --muted: #5b666a;
+  --control: #24508f;
+  --control-ink: #ffffff;
+  --ok: #2c7548;
+  --alarm: #b83722;
+  --warn: #9a700a;
+  --ok-wash: #e2efe5;
+  --alarm-wash: #f7e3de;
+  --warn-wash: #f5ecd6;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #171b1d;
+    --sheet: #1f2427;
+    --sunk: #1a1f21;
+    --rule: #3a4347;
+    --line: #aab3b6;
+    --ink: #dde2e1;
+    --muted: #8f999c;
+    --control: #86a8e3;
+    --control-ink: #10161b;
+    --ok: #6cc08b;
+    --alarm: #f07560;
+    --warn: #dcb052;
+    --ok-wash: #1d2e24;
+    --alarm-wash: #3a211c;
+    --warn-wash: #342b17;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-sheet: var(--sheet);
+  --color-sunk: var(--sunk);
+  --color-rule: var(--rule);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-control: var(--control);
+  --color-control-ink: var(--control-ink);
+  --color-ok: var(--ok);
+  --color-alarm: var(--alarm);
+  --color-warn: var(--warn);
+  --color-ok-wash: var(--ok-wash);
+  --color-alarm-wash: var(--alarm-wash);
+  --color-warn-wash: var(--warn-wash);
+
+  --font-display: var(--font-barlow), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-plex), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "Cascadia Mono", monospace;
+}
+
+html,
+body {
+  background: var(--ground);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--control);
+  outline-offset: 2px;
+}
+
+/* Drawing-sheet label: the tiny uppercase caption in a title-block cell. */
+.cell-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
