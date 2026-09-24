@@ -1,0 +1,36 @@
+[
+ {
+  "ts": "2026-09-24T21:39:19+00:00",
+  "role": "small_text",
+  "model": "gemma4:e2b",
+  "backend": "ollama",
+  "was_resident": true,
+  "evicted": [],
+  "load_ms": 5.3,
+  "prompt_tokens": 22,
+  "prompt_tok_s": 97.7,
+  "completion_tokens": 18,
+  "tok_s": 94.7,
+  "total_ms": 429.7,
+  "wall_ms": 466.5,
+  "size_vram": 1708392447,
+  "size": 1708392447
+ },
+ {
+  "ts": "2026-09-24T21:39:50+00:00",
+  "role": "small_text",
+  "model": "gemma4:e2b",
+  "backend": "ollama",
+  "was_resident": false,
+  "evicted": [],
+  "load_ms": 6459.2,
+  "prompt_tokens": 22,
+  "prompt_tok_s": 213.5,
+  "completion_tokens": 22,
+  "tok_s": 90.7,
+  "total_ms": 6808.7,
+  "wall_ms": 6827.1,
+  "size_vram": 1708392447,
+  "size": 1708392447
+ }
+]

@@ -18,10 +18,29 @@ services:
       KILA_SECRET_KEY: ${KILA_SECRET_KEY:?set KILA_SECRET_KEY in .env}
       KILA_SEED_PASSWORD: ${KILA_SEED_PASSWORD:-kila-demo}
       KILA_COOKIE_SECURE: ${KILA_COOKIE_SECURE:-false}
+      KILA_OLLAMA_URL: http://ollama:11434
+      KILA_METRICS_DIR: /metrics
     volumes:
       - ./data:/data
       - ./config:/app/config:ro
+      - ./metrics:/metrics
     networks: [kila_internal]
+    depends_on: [ollama]
+    restart: unless-stopped
+
+  # Model server. Internal network only, so it cannot pull at runtime: models must already be
+  # in OLLAMA_MODELS_DIR (run scripts/predownload.py --yes against a host Ollama first, then
+  # point OLLAMA_MODELS_DIR at that store, e.g. %USERPROFILE%/.ollama/models on Windows).
+  ollama:
+    image: ollama/ollama:0.34.4
+    environment:
+      OLLAMA_KEEP_ALIVE: 10m
+      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-1}   # laptop profile: one resident model
+      OLLAMA_NOPRUNE: "1"
+    volumes:
+      - ${OLLAMA_MODELS_DIR:-./models/ollama}:/root/.ollama/models
+    networks: [kila_internal]
+    gpus: all
     restart: unless-stopped
 
   web:

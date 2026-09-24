@@ -5,7 +5,7 @@ the organisation's own GPU and reads scans, drawings, spreadsheets and code. It 
 deliverables with citations, and a human reviews and signs them. Every action goes into a
 tamper-evident audit ledger.
 
-**Status: Phase 0 (foundations).** See `docs/PHASE_0.md` for what works today and `docs/MOCKS.md` for what doesn't yet.
+**Status: Phase 1 (model plane).** See `docs/PHASE_1.md` for what works today and `docs/MOCKS.md` for what doesn't yet.
 
 ## Quick start (dev)
 

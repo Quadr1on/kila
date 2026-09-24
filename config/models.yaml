@@ -1,0 +1,62 @@
+# Model plane (spec §5). Code asks for a ROLE; the active profile decides which model serves it.
+# An admin can activate another catalog model for a role from the Models page. That choice is
+# stored in the DB (`models` table) and wins over the `default` below until changed again.
+# This file is re-read automatically when it changes.
+
+active_profile: laptop   # laptop | workstation | server   (env override: KILA_MODEL_PROFILE)
+
+backends:
+  ollama:
+    # Native API root; the OpenAI-compatible API is served under /v1.
+    base_url: "${KILA_OLLAMA_URL:-http://127.0.0.1:11434}"
+    kind: ollama
+  vllm-reason:
+    base_url: "${KILA_VLLM_URL:-http://vllm-reason:8000}"
+    kind: openai            # plain OpenAI-compatible server (vLLM / llama.cpp / llama-swap)
+
+# Everything an admin may activate. `licence` is checked into docs/LICENSES.md before use.
+catalog:
+  - { name: "qwen3.5:4b",       backend: ollama, roles: [small_text, vision],  licence: Apache-2.0, note: "multimodal; one model covers text + vision on 8 GB" }
+  - { name: "qwen3:8b",         backend: ollama, roles: [large_text, small_text], licence: Apache-2.0 }
+  - { name: "qwen3.5:9b",       backend: ollama, roles: [large_text],          licence: Apache-2.0, note: "tight on 8 GB; may spill to CPU" }
+  - { name: "qwen2.5-coder:7b", backend: ollama, roles: [coder],               licence: Apache-2.0 }
+  - { name: "qwen3-vl:4b",      backend: ollama, roles: [vision],              licence: Apache-2.0 }
+  - { name: "gemma4:e2b",       backend: ollama, roles: [small_text, vision],  licence: Apache-2.0, note: "effective 2B, audio+vision encoders make the file ~7 GB" }
+
+# Per-call defaults. `think: false` turns off long hidden reasoning for chat on small GPUs.
+defaults:
+  temperature: 0.3
+  max_tokens: 1024
+  think: false
+  keep_alive: "10m"
+
+profiles:
+  laptop:
+    notes: >-
+      8 GB VRAM. Ollama keeps ONE model resident and swaps on demand, so switching between
+      roles served by different models costs a load. The Models page shows the measured swap
+      time. small_text and vision share qwen3.5:4b to avoid that swap on the common path.
+    roles:
+      small_text: { default: "qwen3.5:4b" }
+      large_text: { default: "qwen3:8b" }
+      coder:      { default: "qwen2.5-coder:7b" }
+      vision:     { default: "qwen3.5:4b" }
+  workstation:
+    notes: "24 GB VRAM. Two to three models resident at once."
+    roles:
+      small_text: { default: "qwen3.5:4b" }
+      large_text: { default: "qwen3.5:9b" }
+      coder:      { default: "qwen2.5-coder:7b" }
+      vision:     { default: "qwen3.5:4b" }
+  server:
+    notes: "48-80 GB VRAM. vLLM with AWQ INT4 for the large model (not set up in this MVP)."
+    roles:
+      small_text: { default: "qwen3.5:4b" }
+      large_text: { default: "qwen3:8b" }
+      coder:      { default: "qwen2.5-coder:7b" }
+      vision:     { default: "qwen3.5:4b" }
+
+# Embedder / reranker are loaded in-process in Phase 2 from local paths (see scripts/predownload.py).
+local_models:
+  embedder: { hf_repo: "BAAI/bge-m3",              path: "models/hf/bge-m3",              licence: MIT }
+  reranker: { hf_repo: "BAAI/bge-reranker-v2-m3",  path: "models/hf/bge-reranker-v2-m3",  licence: Apache-2.0 }

@@ -3,7 +3,7 @@ API := services/api
 WEB := apps/web
 export NEXT_TELEMETRY_DISABLED := 1
 
-.PHONY: setup dev dev-api dev-web test typecheck audit build up down offline-check seed
+.PHONY: setup dev dev-api dev-web test typecheck audit build up down offline-check seed predownload
 
 setup:            ## install deps (the only step that needs the network)
 	uv sync --directory $(API) --python 3.11
@@ -34,6 +34,9 @@ up:
 
 down:
 	docker compose down
+
+predownload:      ## list models to fetch (dry run). ARGS=--yes to download, ARGS="--yes --all-catalog" for all
+	uv run --directory $(API) --group setup python ../../scripts/predownload.py $(ARGS)
 
 seed:
 	uv run --directory $(API) python -m kila.seed

@@ -85,3 +85,32 @@ nftables policy (Linux) closes the web container's egress too. The web port bind
   It's stateless, so logout clears the cookie but can't revoke a copied token before it expires.
   Acceptable for the MVP, and noted in MOCKS.md.
 - Roles: `engineer`, `reviewer`, `admin`. `require_role(...)` is a FastAPI dependency.
+
+## Model plane (Phase 1, `kila/models`, `config/models.yaml`)
+
+- **Roles, not models.** Code calls `get_llm("small_text")`. `ModelRegistry.spec(role)` resolves the
+  model in this order: an admin activation (a `models` row with `active=True` for the profile and
+  role), then the profile's `default`. If an activated model is later removed from the YAML
+  catalog, the registry falls back to the default.
+- **Hot reload.** `models.yaml` is re-read when its mtime changes (`${VAR:-default}` env expansion
+  is applied), and the reload is logged as `model.config_reloaded`. An activation takes effect on
+  the next request with no restart, and is logged as `model.activate`.
+- **Client.** `langchain_openai.ChatOpenAI` pointed at `<backend>/v1`, with `stream_usage=True` so
+  token counts come from the server. For Ollama, `think: false` becomes `reasoning_effort: "none"`.
+  (tiktoken is installed by langchain-openai but never called; token counting would make it
+  download encodings, so don't use `get_num_tokens`.)
+- **Measurements** (`kila/models/health.py`):
+  - The warm-up calls Ollama's native `/api/generate` and takes `load_duration`, `eval_count` and
+    `eval_duration` from the response. That gives tokens/sec and load time (the **swap time** when
+    the model wasn't resident).
+  - Residency and VRAM per model come from `/api/ps`; GPU totals from `nvidia-smi`.
+  - Runs are appended to `metrics/model_warmup.json` and logged as `model.warmup`.
+- **Chat** (`kila/chat/router.py`): `POST /chat/sessions/{id}/messages` streams SSE events
+  (`start`, `delta`, `done` or `error`).
+  - The full text is stored in `messages`. `messages.meta_json` (migration 0002) keeps the
+    model, token counts, TTFT, tok/s and the ledger seq.
+  - The ledger's `llm.call` event holds prompt and response **SHA-256s**, token counts and
+    timings, never the text.
+  - A dropped connection (the Stop button) saves the partial reply and logs `status: aborted`.
+- **Compose:** `ollama` runs on `kila_internal` only, so it can't pull at runtime. Models come
+  from `OLLAMA_MODELS_DIR`, which `scripts/predownload.py --yes` fills while online.

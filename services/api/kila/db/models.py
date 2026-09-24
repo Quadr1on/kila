@@ -41,6 +41,8 @@ class Message(SQLModel, table=True):
     role: str
     content: str
     created_at: datetime = Field(default_factory=utcnow)
+    # Phase 1: which model answered, token counts, timings, ledger seq (assistant messages only).
+    meta_json: str = "{}"
 
 
 class Task(SQLModel, table=True):

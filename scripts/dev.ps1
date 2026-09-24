@@ -1,5 +1,5 @@
-# Windows equivalent of the Makefile. Usage: powershell -File scripts/dev.ps1 <setup|dev|test|audit|build|up|down|seed|offline-check>
-param([Parameter(Mandatory = $true)][string]$Task)
+# Windows equivalent of the Makefile. Usage: powershell -File scripts/dev.ps1 <setup|dev|test|audit|build|up|down|seed|predownload [--yes]|offline-check>
+param([Parameter(Mandatory = $true)][string]$Task, [Parameter(ValueFromRemainingArguments = $true)][string[]]$args)
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $Api = Join-Path $Root "services/api"
@@ -26,6 +26,7 @@ switch ($Task) {
   "build" { Run docker @("compose", "build") }
   "up" { Run docker @("compose", "up", "-d") }
   "down" { Run docker @("compose", "down") }
+  "predownload" { Run uv (@("run", "--directory", $Api, "--group", "setup", "python", "../../scripts/predownload.py") + $args) }
   "seed" { Run uv @("run", "--directory", $Api, "python", "-m", "kila.seed") }
   "offline-check" { Run uv @("run", "--directory", $Api, "python", "../../scripts/offline_check.py") }
   default { throw "unknown task: $Task" }

@@ -27,12 +27,13 @@ PERMISSIVE = re.compile(
 
 # name -> reason. Keep in sync with docs/LICENSES.md.
 EXCEPTIONS: dict[str, str] = {
-    "certifi": "MPL-2.0 CA bundle (data file, unmodified). Pulled in by httpx (dev/test only).",
+    "certifi": "MPL-2.0 CA bundle (data file, unmodified). Pulled in by httpx/openai; runtime calls are plain HTTP to local servers.",
     "@img/sharp-libvips-win32-x64": "LGPL-3.0 libvips, dynamically loaded by sharp for next/image. KILA does not use next/image.",
     "@img/sharp-libvips-linux-x64": "LGPL-3.0 libvips, dynamically loaded by sharp for next/image. KILA does not use next/image.",
     "@img/sharp-libvips-linuxmusl-x64": "LGPL-3.0 libvips, dynamically loaded by sharp for next/image. KILA does not use next/image.",
     "@img/sharp-win32-x64": "Apache-2.0 AND LGPL-3.0 (bundles libvips). Same reason as sharp-libvips.",
     "@img/sharp-wasm32": "Apache-2.0 AND LGPL-3.0 (bundles libvips). Same reason as sharp-libvips.",
+    "tqdm": "MPL-2.0 AND MIT progress bars, pulled in by huggingface_hub in the `setup` group only (predownload).",
     "lightningcss": "MPL-2.0 CSS compiler used by Tailwind at build time only; not shipped in the runtime image.",
     "lightningcss-win32-x64-msvc": "MPL-2.0 native binary of lightningcss; build time only.",
     "lightningcss-linux-x64-gnu": "MPL-2.0 native binary of lightningcss; build time only.",

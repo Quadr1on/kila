@@ -6,23 +6,40 @@ from fastapi.testclient import TestClient
 PASSWORD = "test-pass"
 
 
+@pytest.fixture(scope="session")
+def mock_llm():
+    from tests.mock_llm import MockLLMServer
+
+    with MockLLMServer() as srv:
+        yield srv
+
+
 @pytest.fixture()
-def app_env(tmp_path, monkeypatch):
-    """Fresh data dir + DB per test. Migrations and seed run exactly as in production."""
+def app_env(tmp_path, monkeypatch, mock_llm):
+    """Fresh data dir + DB per test. Migrations and seed run exactly as in production.
+    The model backend points at an in-process fake Ollama, so nothing touches a real model."""
     monkeypatch.setenv("KILA_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("KILA_METRICS_DIR", str(tmp_path / "metrics"))
     monkeypatch.setenv("KILA_SEED_PASSWORD", PASSWORD)
     monkeypatch.setenv("KILA_SECRET_KEY", "test-secret")
+    monkeypatch.setenv("KILA_OLLAMA_URL", mock_llm.url)
+    monkeypatch.delenv("KILA_MODEL_PROFILE", raising=False)
     from kila.db.session import reset_engine
-    from kila.settings import get_settings
+    from kila.models.registry import reset_registry
+    from kila.settings import get_settings, load_app_config
 
     get_settings.cache_clear()
+    load_app_config.cache_clear()
     reset_engine()
+    reset_registry()
     from kila.main import app
 
     with TestClient(app) as c:  # runs lifespan: migrate + seed + startup event
         yield app, c
     reset_engine()
+    reset_registry()
     get_settings.cache_clear()
+    load_app_config.cache_clear()
 
 
 @pytest.fixture()

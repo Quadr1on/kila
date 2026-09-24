@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     data_dir: Path = REPO_ROOT / "data"
     config_dir: Path = REPO_ROOT / "config"
+    metrics_dir: Path = REPO_ROOT / "metrics"
     # Used for HMAC signed URLs and session cookies. MUST be overridden outside dev.
     secret_key: str = "dev-insecure-change-me"
     seed_password: str = "kila-demo"
