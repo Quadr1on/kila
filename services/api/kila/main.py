@@ -19,6 +19,8 @@ from kila import __version__, ledger  # noqa: E402
 from kila.auth.router import router as auth_router  # noqa: E402
 from kila.chat.router import router as chat_router  # noqa: E402
 from kila.db.session import run_migrations  # noqa: E402
+from kila.ingest import service as ingest_service  # noqa: E402
+from kila.ingest.router import router as ingest_router  # noqa: E402
 from kila.ledger.router import router as ledger_router  # noqa: E402
 from kila.models.registry import get_registry  # noqa: E402
 from kila.models.router import router as models_router  # noqa: E402
@@ -32,7 +34,9 @@ async def lifespan(_: FastAPI):
     seed()
     get_registry().sync()  # validate models.yaml and mirror its catalog into the DB
     ledger.append("system", "system.startup", {"version": __version__})
+    ingest_service.requeue_interrupted()
     yield
+    ingest_service.shutdown()
 
 
 app = FastAPI(title="KILA API", version=__version__, lifespan=lifespan, docs_url="/docs", redoc_url=None)
@@ -41,6 +45,7 @@ app.include_router(storage_router)
 app.include_router(ledger_router)
 app.include_router(models_router)
 app.include_router(chat_router)
+app.include_router(ingest_router)
 
 
 @app.get("/health")

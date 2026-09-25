@@ -1,0 +1,13 @@
+Konkan Coastal Refinery Ltd (fictional)
+INSPECTION REPORT IR-2026-0163
+Equipment: PSV-1204 Pressure safety valve on crude column overhead drum
+Unit: Crude Distillation Unit 1
+Inspection date: 20-May-2026 Previous inspection: 18-May-2025
+Inspector: S. Menon (synthetic)
+Bench test
+Set pressure 3.5 bar(g); as-received pop 3.71 bar(g); as-left pop 3.52 bar(g).
+Findings
+1. As-received pop pressure 3.71 bar(g) against a set pressure of 3.5 bar(g).
+2. After overhaul and adjustment the valve popped at 3.52 bar(g). Seat tight.
+Recommendation
+Record the as-received test as FAILED per SOP-MNT-010 section 3 (tolerance +/- 0.15 bar for set pressures of 5 bar(g) or less). Keep 12-month test interval (fouling service).

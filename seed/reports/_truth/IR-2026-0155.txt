@@ -1,0 +1,14 @@
+Konkan Coastal Refinery Ltd (fictional)
+INSPECTION REPORT IR-2026-0155
+Equipment: P-1201B Crude charge pump casing
+Unit: Crude Distillation Unit 1
+Inspection date: 14-Jul-2026 Previous inspection: 10-Jul-2023
+Inspector: K. Shetty (synthetic)
+Thickness readings (UT), interval 3.0 years
+CML Location t prev (mm) t actual (mm) t min (mm) CR (mm/yr) RL (yr)
+C1 Casing volute 22.0 21.1 17.0 0.300 13.7
+C2 Suction nozzle 14.0 13.2 9.5 0.267 13.9
+Findings
+1. Erosion marks at the volute tongue. Mechanical seal leaking at 5 drops per minute.
+Recommendation
+Replace mechanical seal per SOP-MNT-050. Re-measure casing in 3 years.

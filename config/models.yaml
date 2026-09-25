@@ -56,7 +56,25 @@ profiles:
       coder:      { default: "qwen2.5-coder:7b" }
       vision:     { default: "qwen3.5:4b" }
 
-# Embedder / reranker are loaded in-process in Phase 2 from local paths (see scripts/predownload.py).
+# Embedder / reranker are loaded in-process (Phase 2) from these local paths. `ignore` skips
+# duplicate weights (bge-m3 ships an ONNX copy of the same 2.3 GB model) and demo images.
 local_models:
-  embedder: { hf_repo: "BAAI/bge-m3",              path: "models/hf/bge-m3",              licence: MIT }
-  reranker: { hf_repo: "BAAI/bge-reranker-v2-m3",  path: "models/hf/bge-reranker-v2-m3",  licence: Apache-2.0 }
+  embedder:
+    hf_repo: "BAAI/bge-m3"
+    path: "models/hf/bge-m3"
+    licence: MIT
+    ignore: ["onnx/*", "imgs/*", "*.jpg", "colbert_linear.pt", "sparse_linear.pt"]
+  reranker:
+    hf_repo: "BAAI/bge-reranker-v2-m3"
+    path: "models/hf/bge-reranker-v2-m3"
+    licence: Apache-2.0
+    ignore: ["assets/*"]
+
+# OCR recognition models not bundled in the rapidocr wheel (the default det/cls/rec are bundled).
+# PP-OCRv5 has no Kannada model; Kannada goes to the vision model (see config/ingest.yaml).
+ocr_models:
+  devanagari:
+    url: "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/rec/devanagari_PP-OCRv5_rec_mobile.onnx"
+    sha256: "d6f0a906580e3fa6b324a318718f1f31f268b6ea8ef985f91c2012a37f52c91e"
+    path: "models/ocr/devanagari_PP-OCRv5_rec_mobile.onnx"
+    licence: Apache-2.0

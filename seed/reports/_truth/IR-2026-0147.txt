@@ -1,0 +1,17 @@
+Konkan Coastal Refinery Ltd (fictional)
+INSPECTION REPORT IR-2026-0147
+Equipment: E-2104 Crude / residue heat exchanger, shell side
+Unit: Crude Distillation Unit 2
+Inspection date: 12-Sep-2026 Previous inspection: 20-Sep-2022
+Inspector: A. Rao (synthetic)
+Thickness readings (UT), interval 4.0 years
+CML Location t prev (mm) t actual (mm) t min (mm) CR (mm/yr) RL (yr)
+C1 Shell top, inlet end 12.0 11.1 6.2 0.225 21.8
+C2 Shell bottom, inlet end 12.0 10.8 6.2 0.300 15.3
+C3 Nozzle N3 (outlet) 11.5 9.8 6.2 0.425 8.5
+C4 Shell bottom, outlet end 12.0 11.4 6.2 0.150 34.7
+Findings
+1. Nozzle N3 shows the highest wall loss. Localised pitting up to 0.6 mm deep was found on the tube sheet.
+2. No cracking was detected by magnetic particle testing on the shell-to-nozzle welds.
+Recommendation
+Re-inspect nozzle N3 by UT in 24 months. Review crude desalter performance for chloride carry-over.

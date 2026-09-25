@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   devIndicators: false,
+  experimental: {
+    // /api/* rewrites default to a 30 s socket-inactivity timeout. A cold load of a large model
+    // can be silent for longer than that before the first token, so allow 10 minutes.
+    // (The API also sends SSE keep-alive comments every 10 s.)
+    proxyTimeout: 600_000,
+  },
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${API_URL}/:path*` }];
   },

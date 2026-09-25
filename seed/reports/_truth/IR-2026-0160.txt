@@ -1,0 +1,15 @@
+Konkan Coastal Refinery Ltd (fictional)
+INSPECTION REPORT IR-2026-0160
+Equipment: 6"-P-1045-A1B Crude overhead line downstream of wash water injection
+Unit: Crude Distillation Unit 1
+Inspection date: 02-Jun-2026 Previous inspection: 05-Jun-2023
+Inspector: A. Rao (synthetic)
+Thickness readings (UT), interval 3.0 years
+CML Location t prev (mm) t actual (mm) t min (mm) CR (mm/yr) RL (yr)
+C1 Injection point +300 mm 7.1 5.9 3.4 0.400 6.3
+C2 Elbow E-4 7.1 5.6 3.4 0.500 4.4
+C3 10D downstream 7.1 6.5 3.4 0.200 15.5
+Findings
+1. Elbow E-4 shows the highest corrosion rate, consistent with ammonium chloride under-deposit corrosion.
+Recommendation
+Corrosion rate exceeds 0.25 mm/year at two CMLs: propose material upgrade review per STD-ENG-110. Increase monitoring of elbow E-4 to annual.

@@ -1,0 +1,33 @@
+# Multimodal ingestion (spec §6.1). Everything here runs locally; no model is ever downloaded
+# at runtime (OCR models are either bundled in the rapidocr wheel or fetched by predownload.py).
+
+pdf:
+  scanned_min_chars_per_page: 25   # a page with fewer text-layer characters is treated as scanned
+  render_dpi: 200                  # rasterisation for OCR and page images
+
+ocr:
+  engine: rapidocr                 # PP-OCR models run on onnxruntime (see docs/ARCHITECTURE.md)
+  default_language: en
+  languages:
+    en: { rec_model: bundled }     # PP-OCRv6 small, ships inside the rapidocr wheel
+    hi: { rec_model: "models/ocr/devanagari_PP-OCRv5_rec_mobile.onnx" }
+    kn: { rec_model: null }        # PP-OCR has no Kannada model: vision model only (labelled in UI)
+  min_text_score: 0.5
+  preprocess:
+    deskew: true
+    denoise: true                  # 3x3 median: removes scan speckle without eroding thin strokes
+    max_skew_deg: 10
+
+vision_fallback:
+  enabled: true
+  role: vision                     # model role from config/models.yaml
+  low_confidence: 0.80             # page mean OCR confidence below this -> also ask the vision model
+  disagreement_below: 0.70         # OCR vs vision text similarity below this -> flagged in the preview
+  max_pages: 4                     # vision calls are slow on a laptop; cap per document
+
+limits:
+  max_pages: 60
+  table_preview_rows: 15
+  code_max_files: 200
+  code_max_bytes: 400000           # total bytes of code text kept in the envelope
+  text_max_chars: 400000

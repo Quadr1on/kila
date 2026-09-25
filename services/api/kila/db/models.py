@@ -138,6 +138,41 @@ class KBDocument(SQLModel, table=True):
     doc_type: str
     indexed_at: Optional[datetime] = None
     chunk_count: int = 0
+    # Phase 2: indexing lifecycle
+    status: str = "pending"  # pending | indexing | indexed | error
+    error: Optional[str] = None
+
+
+class KBChunk(SQLModel, table=True):
+    """A retrievable passage with enough position data to cite it (spec §6.5)."""
+    __tablename__ = "kb_chunks"
+    id: str = Field(primary_key=True)  # "<object_id>:p<page>:<n>", stable across re-index
+    kb_document_id: int = Field(foreign_key="kb_documents.id", index=True)
+    object_id: str = Field(foreign_key="objects.id", index=True)
+    page: int
+    char_start: int
+    char_end: int
+    text: str
+
+
+class Ingestion(SQLModel, table=True):
+    """One extraction run of one stored object (spec §6.1). Results are cached by sha256 + pipeline."""
+    __tablename__ = "ingestions"
+    id: str = Field(default_factory=new_id, primary_key=True)
+    object_id: str = Field(foreign_key="objects.id", index=True)
+    sha256: str = Field(index=True)
+    pipeline: str
+    lang: str = "en"
+    status: str = "queued"  # queued | running | done | error
+    pages_done: int = 0
+    pages_total: int = 0
+    error: Optional[str] = None
+    attachment_json: str = "{}"
+    requested_by: Optional[int] = Field(default=None, foreign_key="users.id")
+    created_at: datetime = Field(default_factory=utcnow)
+    started_at: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    duration_ms: Optional[float] = None
 
 
 class LedgerEvent(SQLModel, table=True):

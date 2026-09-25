@@ -27,6 +27,7 @@ from kila.settings import get_settings
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 HISTORY_TURNS = 20
+HEARTBEAT_S = 10.0
 
 
 def _sha(text: str) -> str:
@@ -87,6 +88,26 @@ class MessageIn(BaseModel):
     role: str = "small_text"
 
 
+async def _with_heartbeat(agen: AsyncIterator[Any], every_s: float) -> AsyncIterator[Any]:
+    """Yield items from `agen`; yield None whenever it has been silent for `every_s` seconds."""
+    it = agen.__aiter__()
+    nxt = asyncio.ensure_future(it.__anext__())
+    try:
+        while True:
+            done, _ = await asyncio.wait({nxt}, timeout=every_s)
+            if not done:
+                yield None
+                continue
+            try:
+                item = nxt.result()
+            except StopAsyncIteration:
+                return
+            yield item
+            nxt = asyncio.ensure_future(it.__anext__())
+    finally:
+        nxt.cancel()
+
+
 def _sse(event: str, data: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(data, default=str, ensure_ascii=False)}\n\n"
 
@@ -120,7 +141,10 @@ async def send_message(session_id: str, body: MessageIn, user: User = Depends(cu
         t_first: float | None = None
         status, error = "ok", None
         try:
-            async for chunk in llm.astream(messages):
+            async for chunk in _with_heartbeat(llm.astream(messages), HEARTBEAT_S):
+                if chunk is None:
+                    yield ": keep-alive\n\n"  # SSE comment; keeps proxies from timing out a cold load
+                    continue
                 text = chunk.content if isinstance(chunk.content, str) else ""
                 if text:
                     if t_first is None:

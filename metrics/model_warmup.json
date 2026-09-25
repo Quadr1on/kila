@@ -32,5 +32,22 @@
   "wall_ms": 6827.1,
   "size_vram": 1708392447,
   "size": 1708392447
+ },
+ {
+  "ts": "2026-09-24T22:24:12+00:00",
+  "role": "small_text",
+  "model": "gemma4:e2b",
+  "backend": "ollama",
+  "was_resident": true,
+  "evicted": [],
+  "load_ms": 3.2,
+  "prompt_tokens": 22,
+  "prompt_tok_s": 66.8,
+  "completion_tokens": 16,
+  "tok_s": 100.0,
+  "total_ms": 503.6,
+  "wall_ms": 544.2,
+  "size_vram": 1708392447,
+  "size": 1708392447
  }
 ]

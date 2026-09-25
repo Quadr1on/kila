@@ -61,11 +61,14 @@ def ollama_size(client: httpx.Client, name: str) -> int | None:
         return None
 
 
-def hf_size(client: httpx.Client, repo: str) -> int | None:
+def hf_size(client: httpx.Client, repo: str, ignore: list[str] | None) -> int | None:
+    from fnmatch import fnmatch
+
     try:
         r = client.get(f"https://huggingface.co/api/models/{repo}", params={"blobs": "true"})
         r.raise_for_status()
-        return sum(s.get("size") or 0 for s in r.json().get("siblings", []))
+        return sum(s.get("size") or 0 for s in r.json().get("siblings", [])
+                   if not any(fnmatch(s["rfilename"], pat) for pat in ignore or []))
     except httpx.HTTPError:
         return None
 
@@ -90,14 +93,33 @@ def pull_ollama(base: str, name: str) -> None:
     print(f"    {name}: done{' ' * 40}")
 
 
-def pull_hf(repo: str, dest: Path) -> None:
+def pull_hf(repo: str, dest: Path, ignore: list[str] | None) -> None:
     try:
         from huggingface_hub import snapshot_download
     except ImportError:
         sys.exit("huggingface_hub is missing: run with `uv run --group setup ...`")
     os.environ.pop("HF_HUB_OFFLINE", None)  # this script is the one place allowed online
-    snapshot_download(repo_id=repo, local_dir=str(dest))
+    snapshot_download(repo_id=repo, local_dir=str(dest), ignore_patterns=ignore or None)
     print(f"    {repo} -> {dest.relative_to(ROOT)}")
+
+
+def pull_file(url: str, sha256: str, dest: Path) -> None:
+    import hashlib
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    h = hashlib.sha256()
+    with httpx.Client(timeout=httpx.Timeout(10, read=120), follow_redirects=True) as c, c.stream("GET", url) as r:
+        r.raise_for_status()
+        with open(tmp, "wb") as f:
+            for chunk in r.iter_bytes(1 << 20):
+                h.update(chunk)
+                f.write(chunk)
+    if h.hexdigest() != sha256:
+        tmp.unlink()
+        raise RuntimeError(f"sha256 mismatch for {url}: got {h.hexdigest()}")
+    tmp.replace(dest)
+    print(f"    {dest.relative_to(ROOT)} (sha256 ok)")
 
 
 def main() -> int:
@@ -139,12 +161,27 @@ def main() -> int:
             if dest.exists() and any(dest.iterdir()):
                 print(f"  [have] {m['hf_repo']}  ({m['path']})")
                 continue
-            size = hf_size(c, m["hf_repo"])
+            size = hf_size(c, m["hf_repo"], m.get("ignore"))
             total += size or 0
             todo_h.append(m)
             print(f"  [get ] {m['hf_repo']:28} {gb(size):>9}   licence {m.get('licence')}  -> {m['path']}")
 
-    print(f"\nTo download: {len(todo_o) + len(todo_h)} item(s), about {gb(total)}")
+        print("\nOCR models (RapidOCR / PP-OCR ONNX)")
+        todo_f = []
+        for key, m in (cfg.get("ocr_models") or {}).items() if args.only in (None, "hf") else []:
+            dest = ROOT / m["path"]
+            if dest.exists():
+                print(f"  [have] {key}  ({m['path']})")
+                continue
+            try:
+                size = int(c.head(m["url"]).headers.get("content-length") or 0) or None
+            except httpx.HTTPError:
+                size = None
+            total += size or 0
+            todo_f.append(m)
+            print(f"  [get ] {key:28} {gb(size):>9}   licence {m.get('licence')}  -> {m['path']}")
+
+    print(f"\nTo download: {len(todo_o) + len(todo_h) + len(todo_f)} item(s), about {gb(total)}")
     if not args.yes:
         print("Dry run only. Re-run with --yes to download.")
         return 0
@@ -152,7 +189,9 @@ def main() -> int:
     for name in todo_o:
         pull_ollama(base, name)
     for m in todo_h:
-        pull_hf(m["hf_repo"], ROOT / m["path"])
+        pull_hf(m["hf_repo"], ROOT / m["path"], m.get("ignore"))
+    for m in todo_f:
+        pull_file(m["url"], m["sha256"], ROOT / m["path"])
     print("\nDone. KILA can now run with networking off.")
     return 0
 

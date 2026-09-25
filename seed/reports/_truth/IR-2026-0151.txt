@@ -1,0 +1,15 @@
+Konkan Coastal Refinery Ltd (fictional)
+INSPECTION REPORT IR-2026-0151
+Equipment: V-3102 Hydrotreater high-pressure separator
+Unit: Diesel Hydrotreater 3
+Inspection date: 28-Aug-2026 Previous inspection: 30-Aug-2021
+Inspector: S. Menon (synthetic)
+Thickness readings (UT), interval 5.0 years
+CML Location t prev (mm) t actual (mm) t min (mm) CR (mm/yr) RL (yr)
+C1 Shell course 1 38.0 37.6 31.0 0.080 82.5
+C2 Shell course 2 38.0 37.7 31.0 0.060 111.7
+C3 Bottom head 40.0 39.1 32.5 0.180 36.7
+Findings
+1. Wall loss is uniform and low. Minor coating breakdown on the external insulation support ring.
+Recommendation
+Continue the 5-year internal inspection interval. Repair external coating at the next opportunity.

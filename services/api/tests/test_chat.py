@@ -88,3 +88,20 @@ def test_sessions_are_private(client_for):
     assert rev.get(f"/chat/sessions/{sid}/messages").status_code == 404
     assert rev.post(f"/chat/sessions/{sid}/messages", json={"content": "x"}).status_code == 404
     assert client_for("admin").get(f"/chat/sessions/{sid}/messages").status_code == 200
+
+
+def test_heartbeat_emits_during_silence():
+    import asyncio
+
+    from kila.chat.router import _with_heartbeat
+
+    async def slow():
+        await asyncio.sleep(0.25)
+        yield "a"
+        yield "b"
+
+    async def collect():
+        return [x async for x in _with_heartbeat(slow(), 0.1)]
+
+    out = asyncio.run(collect())
+    assert out[-2:] == ["a", "b"] and out[:-2] and all(x is None for x in out[:-2])
