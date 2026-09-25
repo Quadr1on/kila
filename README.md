@@ -9,11 +9,14 @@ tamper-evident audit ledger.
 
 ## Quick start (dev)
 
-Requirements: [uv](https://docs.astral.sh/uv/), Node 20+, and Docker Desktop (for the compose stack).
+**Setting up a new machine? Follow [docs/INSTALL.md](docs/INSTALL.md)** (tools, models, offline transfer, troubleshooting).
+
+Requirements: [uv](https://docs.astral.sh/uv/), Node 20+, [Ollama](https://ollama.com), and optionally Docker Desktop.
 
 ```
-make setup        # Windows: powershell -File scripts/dev.ps1 setup
-make dev          # Windows: powershell -File scripts/dev.ps1 dev
+make setup                  # Windows: powershell -File scripts/dev.ps1 setup
+make predownload ARGS=--yes # Windows: powershell -File scripts/dev.ps1 predownload --yes
+make dev                    # Windows: powershell -File scripts/dev.ps1 dev
 ```
 
 Open http://localhost:3000 and sign in as `engineer`, `reviewer` or `admin`. The password comes from
