@@ -162,6 +162,13 @@ export function ModelsPanel() {
               <span className={b.reachable ? "text-ok" : "text-alarm"}>{b.reachable ? "reachable" : "unreachable"}</span>{" "}
               {name} · {b.base_url}
               {!b.reachable && b.error && <span className="block text-muted">{b.error}</span>}
+              {!b.reachable && name === "ollama" && (
+                <span className="mt-1 block font-sans text-[13px] text-ink">
+                  Ollama isn&apos;t running. Start it from the Start menu (it lives in the system tray) or run{" "}
+                  <span className="font-mono">ollama serve</span>, then reload this page. Downloaded models are
+                  still on disk.
+                </span>
+              )}
             </p>
           ))}
         </section>
@@ -241,7 +248,7 @@ function RoleRow({
               {r.candidates.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
-                  {c.pulled ? "" : " (not downloaded)"}
+                  {!r.reachable ? "" : c.pulled ? "" : " (not downloaded)"}
                 </option>
               ))}
             </select>
