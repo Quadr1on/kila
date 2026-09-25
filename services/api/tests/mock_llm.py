@@ -51,6 +51,8 @@ def make_app() -> FastAPI:
             return JSONResponse({"error": {"message": f"model '{model}' not found"}}, status_code=404)
         state["loaded"] = {model}
         words = ["Answer", " from", f" {model}", "."]
+        if any("[S1]" in str(m.get("content")) for m in body["messages"]):
+            words = ["Answer", " from", f" {model}", " [S1]", "."]  # grounded prompt -> cite the first source
 
         def gen():
             base = {"id": "x", "object": "chat.completion.chunk", "created": 0, "model": model}

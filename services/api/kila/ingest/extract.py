@@ -6,6 +6,7 @@ Page images and OCR go through callbacks so this module stays free of storage an
 from __future__ import annotations
 
 import io
+import re
 import time
 import zipfile
 from collections.abc import Callable
@@ -19,6 +20,7 @@ from kila.ingest import preprocess
 from kila.ingest.envelope import Attachment, CodeFile, Page, SheetTable, detect_language
 from kila.ingest.ocr import OcrUnavailable, get_engine, lines_to_text, mean_conf
 from kila.ingest.vision import transcribe
+from kila.pdfium_guard import PDFIUM_LOCK
 
 CODE_EXT = {
     ".py": "python", ".ts": "typescript", ".tsx": "typescript", ".js": "javascript", ".jsx": "javascript",
@@ -90,31 +92,37 @@ class Extractor:
         import pypdfium2 as pdfium
 
         pcfg, lim = self.cfg["pdf"], self.cfg["limits"]
-        pdf = pdfium.PdfDocument(str(path))
-        try:
+        # PDFium isn't thread-safe: hold the lock only for PDFium calls, never during OCR.
+        with PDFIUM_LOCK:
+            pdf = pdfium.PdfDocument(str(path))
             n = len(pdf)
+        try:
             if n > lim["max_pages"]:
                 att.warnings.append(f"Only the first {lim['max_pages']} of {n} pages were read.")
             n = min(n, lim["max_pages"])
             methods = set()
             for i in range(n):
-                page = pdf[i]
-                text = page.get_textpage().get_text_range().strip()
-                if len(text) >= pcfg["scanned_min_chars_per_page"]:
-                    img = np.asarray(page.render(scale=100 / 72).to_pil().convert("RGB"))
+                with PDFIUM_LOCK:
+                    page = pdf[i]
+                    text = _norm(page.get_textpage().get_text_range())
+                    scanned = len(text) < pcfg["scanned_min_chars_per_page"]
+                    dpi = pcfg["render_dpi"] if scanned else 100
+                    img = np.asarray(page.render(scale=dpi / 72).to_pil().convert("RGB"))
+                    page.close()
+                if not scanned:
                     oid, size = self.store_image(img, f"p{i + 1}")
                     att.pages.append(Page(index=i + 1, method="text_layer", text=text,
                                           image_object_id=oid, image_size=size))
                     methods.add("text")
                 else:
-                    img = np.asarray(page.render(scale=pcfg["render_dpi"] / 72).to_pil().convert("RGB"))
                     att.pages.append(self._ocr_page(img, i + 1, att))
                     methods.add("ocr")
-                page.close()
                 self.progress(i + 1, n)
             att.kind = "pdf_text" if methods == {"text"} else "pdf_scanned" if methods == {"ocr"} else "pdf_mixed"
+            _drop_repeated_lines(att.pages)
         finally:
-            pdf.close()
+            with PDFIUM_LOCK:
+                pdf.close()
 
     # ------------------------------------------------------------ images
 
@@ -248,6 +256,30 @@ class Extractor:
         bodies = "\n\n".join(f"### {c.path}\n{c.text}" for c in att.code if c.text)
         att.pages.append(Page(index=1, method="text_layer", text=f"Files:\n{tree}\n\n{bodies}"))
         self.progress(1, 1)
+
+
+def _norm(text: str) -> str:
+    text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\ufffd", "-")
+    return "\n".join(line.rstrip() for line in text.split("\n")).strip()
+
+
+def _drop_repeated_lines(pages: list[Page]) -> None:
+    """Remove running headers/footers: short lines that appear on most pages of a multi-page PDF.
+    Page numbers are normalised first so 'Page 3' and 'Page 4' count as the same line."""
+    text_pages = [p for p in pages if p.method == "text_layer"]
+    if len(text_pages) < 3:
+        return
+    def key(s: str) -> str:
+        s = s.strip().lower()
+        # only page-number lines are collapsed; other lines differing by a number (table rows) stay distinct
+        return re.sub(r"\d+", "#", s) if re.search(r"\bpage\s*\d+", s) else s
+    counts: dict[str, int] = {}
+    for p in text_pages:
+        for k in {key(line) for line in p.text.splitlines() if 0 < len(line.strip()) <= 120}:
+            counts[k] = counts.get(k, 0) + 1
+    boiler = {k for k, n in counts.items() if n >= 0.6 * len(text_pages)}
+    for p in text_pages:
+        p.text = "\n".join(line for line in p.text.splitlines() if key(line) not in boiler).strip()
 
 
 def _jsonable(v: Any) -> Any:

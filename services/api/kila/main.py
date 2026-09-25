@@ -24,6 +24,7 @@ from kila.ingest.router import router as ingest_router  # noqa: E402
 from kila.ledger.router import router as ledger_router  # noqa: E402
 from kila.models.registry import get_registry  # noqa: E402
 from kila.models.router import router as models_router  # noqa: E402
+from kila.rag.router import router as rag_router  # noqa: E402  (importing registers the index listener)
 from kila.seed import seed  # noqa: E402
 from kila.storage.router import router as storage_router  # noqa: E402
 
@@ -37,6 +38,9 @@ async def lifespan(_: FastAPI):
     ingest_service.requeue_interrupted()
     yield
     ingest_service.shutdown()
+    from kila.rag.store import reset_store
+
+    reset_store()  # release the embedded Qdrant file lock
 
 
 app = FastAPI(title="KILA API", version=__version__, lifespan=lifespan, docs_url="/docs", redoc_url=None)
@@ -46,6 +50,7 @@ app.include_router(ledger_router)
 app.include_router(models_router)
 app.include_router(chat_router)
 app.include_router(ingest_router)
+app.include_router(rag_router)
 
 
 @app.get("/health")

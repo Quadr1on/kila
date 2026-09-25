@@ -20,16 +20,19 @@ def make_thumbnail(src: Path, mime: str, max_px: int) -> bytes | None:
         if mime == "application/pdf":
             import pypdfium2 as pdfium
 
-            pdf = pdfium.PdfDocument(str(src))
-            try:
-                page = pdf[0]
-                w, h = page.get_size()
-                scale = (max_px * 2) / max(w, h, 1)
-                im = page.render(scale=scale).to_pil()
-                page.close()
-                return _to_png(im, max_px)
-            finally:
-                pdf.close()
+            from kila.pdfium_guard import PDFIUM_LOCK
+
+            with PDFIUM_LOCK:  # PDFium isn't thread-safe (the OCR worker renders pages too)
+                pdf = pdfium.PdfDocument(str(src))
+                try:
+                    page = pdf[0]
+                    w, h = page.get_size()
+                    scale = (max_px * 2) / max(w, h, 1)
+                    im = page.render(scale=scale).to_pil()
+                    page.close()
+                finally:
+                    pdf.close()
+            return _to_png(im, max_px)
     except Exception as exc:  # thumbnails are best effort; never fail the upload
         log.warning("thumbnail failed for %s (%s): %s", src.name, mime, exc)
     return None

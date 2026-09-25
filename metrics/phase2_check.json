@@ -1,0 +1,228 @@
+{
+ "ts": "2026-09-25T04:42:10+00:00",
+ "model": "gemma4:e2b",
+ "corpus": {
+  "documents": 19,
+  "indexed": 19,
+  "chunks": 22,
+  "wall_s": 52.6
+ },
+ "ocr": [
+  {
+   "report": "IR-2026-0163_scan.pdf",
+   "char_similarity": 0.886,
+   "ocr_conf": 0.9783,
+   "skew_deg": 0.48,
+   "ocr_ms": 2423.9
+  },
+  {
+   "report": "IR-2026-0160_scan.pdf",
+   "char_similarity": 0.964,
+   "ocr_conf": 0.99,
+   "skew_deg": 0.22,
+   "ocr_ms": 2632.9
+  },
+  {
+   "report": "IR-2026-0155_scan.pdf",
+   "char_similarity": 0.948,
+   "ocr_conf": 0.988,
+   "skew_deg": 0.27,
+   "ocr_ms": 2327.7
+  },
+  {
+   "report": "IR-2026-0151_scan.pdf",
+   "char_similarity": 0.952,
+   "ocr_conf": 0.9929,
+   "skew_deg": -0.43,
+   "ocr_ms": 2464.6
+  },
+  {
+   "report": "IR-2026-0147_scan.pdf",
+   "char_similarity": 0.961,
+   "ocr_conf": 0.992,
+   "skew_deg": 1.64,
+   "ocr_ms": 4110.2
+  }
+ ],
+ "attachment_qa": [
+  {
+   "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
+   "try": 1,
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.6487,
+   "wall_s": 7.93,
+   "error": null
+  },
+  {
+   "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
+   "try": 2,
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.6487,
+   "wall_s": 1.29,
+   "error": null
+  },
+  {
+   "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
+   "try": 3,
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.6487,
+   "wall_s": 1.38,
+   "error": null
+  },
+  {
+   "q": "What remaining life is reported for CML C3 of E-2104?",
+   "try": 1,
+   "correct": true,
+   "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.5768,
+   "wall_s": 1.29,
+   "error": null
+  },
+  {
+   "q": "What remaining life is reported for CML C3 of E-2104?",
+   "try": 2,
+   "correct": true,
+   "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.5768,
+   "wall_s": 1.23,
+   "error": null
+  },
+  {
+   "q": "What remaining life is reported for CML C3 of E-2104?",
+   "try": 3,
+   "correct": true,
+   "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "IR-2026-0147_scan.pdf",
+   "retrieval_relevance": 0.5768,
+   "wall_s": 1.19,
+   "error": null
+  }
+ ],
+ "kb_qa": [
+  {
+   "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
+   "try": 1,
+   "correct": true,
+   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-MNT-010.pdf",
+   "retrieval_relevance": 0.7306,
+   "wall_s": 7.66,
+   "error": null
+  },
+  {
+   "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
+   "try": 2,
+   "correct": true,
+   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-MNT-010.pdf",
+   "retrieval_relevance": 0.7306,
+   "wall_s": 6.29,
+   "error": null
+  },
+  {
+   "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
+   "try": 3,
+   "correct": true,
+   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-MNT-010.pdf",
+   "retrieval_relevance": 0.7306,
+   "wall_s": 6.46,
+   "error": null
+  },
+  {
+   "q": "How often must the area be re-tested for gas during hot work?",
+   "try": 1,
+   "correct": true,
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-OPS-001.pdf",
+   "retrieval_relevance": 0.7188,
+   "wall_s": 7.13,
+   "error": null
+  },
+  {
+   "q": "How often must the area be re-tested for gas during hot work?",
+   "try": 2,
+   "correct": true,
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-OPS-001.pdf",
+   "retrieval_relevance": 0.7188,
+   "wall_s": 6.86,
+   "error": null
+  },
+  {
+   "q": "How often must the area be re-tested for gas during hot work?",
+   "try": 3,
+   "correct": true,
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "cited": [
+    1
+   ],
+   "invalid_citations": [],
+   "top_source": "SOP-OPS-001.pdf",
+   "retrieval_relevance": 0.7188,
+   "wall_s": 7.91,
+   "error": null
+  }
+ ],
+ "summary": {
+  "answers": 12,
+  "correct": 9,
+  "accuracy": 0.75,
+  "with_valid_citation": 12,
+  "right_document_retrieved": 12,
+  "median_answer_s": 6.46,
+  "mean_ocr_char_similarity": 0.942
+ }
+}

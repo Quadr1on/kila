@@ -1,0 +1,41 @@
+# Local retrieval (spec §6.5): chunks -> bge-m3 dense (Qdrant) + BM25 -> RRF -> bge-reranker.
+
+chunking:
+  # The spec suggests 400-600 tokens. 300 gives page-and-section-precise citations and halves
+  # cross-encoder time on CPU (cost grows with passage length); revisit when reranking on GPU.
+  target_tokens: 300        # estimated as characters / 4
+  overlap_tokens: 40
+  min_chunk_chars: 80       # tiny trailing fragments are merged into the previous chunk
+
+embedder:
+  path: "models/hf/bge-m3"  # from config/models.yaml local_models; loaded with HF_HUB_OFFLINE=1
+  device: auto              # auto | cpu | cuda
+  batch_size: 16
+  max_seq_length: 1024      # chunks are ~450 tokens; capping keeps CPU memory and time bounded
+
+reranker:
+  path: "models/hf/bge-reranker-v2-m3"
+  device: auto
+  max_length: 512
+  # A cross-encoder is ~0.65 s per passage on this laptop's CPU (measured), so rerank fewer on CPU.
+  top_n_gpu: 30
+  top_n_cpu: 8
+  max_length_cpu: 320
+
+qdrant:
+  mode: embedded            # embedded (local files, no server) | server
+  path: "data/qdrant"       # embedded mode
+  url: "${KILA_QDRANT_URL:-http://qdrant:6333}"   # server mode (Docker Compose)
+  collection: kb_chunks
+
+retrieval:
+  dense_k: 30
+  bm25_k: 30
+  rrf_k: 60                 # Reciprocal Rank Fusion constant
+  final_k: 8
+
+answering:
+  role: small_text
+  temperature: 0.0          # grounded answers copy from sources; no creativity wanted
+  max_context_chars: 12000  # ~3k tokens of sources in the prompt
+  attachment_chunks: 6      # best passages taken from the user's own attachments per question

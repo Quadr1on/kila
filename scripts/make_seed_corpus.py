@@ -32,7 +32,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 ROOT = Path(__file__).resolve().parents[1]
 SEED = ROOT / "seed"
 ORG = "Konkan Coastal Refinery Ltd (fictional)"
-FOOTER = "KCR internal · SYNTHETIC DEMO DOCUMENT · not a real procedure"
+FOOTER = "KCR internal - SYNTHETIC DEMO DOCUMENT - not a real procedure"
 
 styles = getSampleStyleSheet()
 H1 = ParagraphStyle("h1", parent=styles["Heading1"], fontSize=15, spaceAfter=6)
@@ -296,7 +296,7 @@ def build_kb(out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for d in KB_DOCS:
         story = [Paragraph(ORG, SMALL), Paragraph(f"{d['id']} &nbsp; {d['title']}", H1),
-                 Paragraph(f"Revision {d['rev']} · Owner: Technical Services · Classification: Internal", SMALL),
+                 Paragraph(f"Revision {d['rev']} - Owner: Technical Services - Classification: Internal", SMALL),
                  Spacer(1, 6)]
         for head, text in d["sections"]:
             story += [Paragraph(head, H2), Paragraph(text, BODY)]
