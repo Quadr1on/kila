@@ -25,7 +25,7 @@ export function Chat() {
   const [active, setActive] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [roles, setRoles] = useState<RoleInfo[]>([]);
-  const [role, setRole] = useState<ModelRole>("small_text");
+  const [role, setRole] = useState<ModelRole | "auto">("auto");
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +89,7 @@ export function Chat() {
     setMessages((m) => [
       ...m,
       { id: `u-${Date.now()}`, role: "user", content, meta: { attachments: attachMeta, use_kb: useKb } },
-      { id: pendingId, role: "assistant", content: "", meta: { role } },
+      { id: pendingId, role: "assistant", content: "", meta: role === "auto" ? {} : { role } },
     ]);
     const patch = (fn: (m: ChatMessage) => ChatMessage) =>
       setMessages((all) => all.map((m) => (m.id === pendingId ? fn(m) : m)));
@@ -104,6 +104,7 @@ export function Chat() {
         (e) => {
           if (e.event === "start") patch((m) => ({ ...m, meta: { ...m.meta, model: e.data.model } }));
           else if (e.event === "status") patch((m) => ({ ...m, meta: { ...m.meta, stage: e.data.stage } }));
+          else if (e.event === "route") patch((m) => ({ ...m, meta: { ...m.meta, stage: undefined, route: e.data } }));
           else if (e.event === "sources")
             patch((m) => ({ ...m, meta: { ...m.meta, stage: undefined, sources: e.data.sources } }));
           else if (e.event === "delta") patch((m) => ({ ...m, content: m.content + e.data.text }));
@@ -175,19 +176,22 @@ export function Chat() {
             <span className="cell-label">Model role</span>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as ModelRole)}
+              onChange={(e) => setRole(e.target.value as ModelRole | "auto")}
               disabled={busy}
               className="border border-rule bg-ground/40 px-2 py-1 font-mono text-[13px] outline-none focus:border-control"
             >
+              <option value="auto">Auto (router)</option>
               {(["small_text", "large_text", "coder"] as const).map((r) => (
                 <option key={r} value={r}>
-                  {ROLE_LABEL[r]}
+                  {ROLE_LABEL[r]} (manual)
                 </option>
               ))}
             </select>
           </label>
           <p className="font-mono text-[12px] text-muted">
-            {current ? (
+            {role === "auto" ? (
+              "the router picks the model for each message"
+            ) : current ? (
               <>
                 served by <span className="text-ink">{current.model}</span>
                 {current.source === "activation" ? " (admin-activated)" : " (profile default)"}
@@ -195,7 +199,6 @@ export function Chat() {
             ) : (
               "loading model…"
             )}
-            <span className="hidden sm:inline"> · routing by hand until phase 3</span>
           </p>
         </header>
 
@@ -322,6 +325,10 @@ function Turn({ m, streaming }: { m: ChatMessage; streaming: boolean }) {
         KILA{meta.model ? ` · ${meta.model}` : ""}
         {grounded ? " · answering from documents" : ""}
       </div>
+      {meta.route && <RouteLine r={meta.route} />}
+      {meta.stage === "routing" && (
+        <p className="text-sm text-muted">Choosing the model for this request…</p>
+      )}
       {meta.stage === "retrieving" && (
         <p className="text-sm text-muted">Searching the documents… (reranking takes a few seconds on CPU)</p>
       )}
@@ -354,6 +361,57 @@ function Turn({ m, streaming }: { m: ChatMessage; streaming: boolean }) {
       )}
       {meta.status === "aborted" && <p className="mt-1 text-xs text-warn">Stopped. The partial reply was saved.</p>}
       {meta.status === "ok" && <MetaLine meta={meta} />}
+    </div>
+  );
+}
+
+function RouteLine({ r }: { r: NonNullable<ChatMessage["meta"]["route"]> }) {
+  const [open, setOpen] = useState(false);
+  if (!r.ok) {
+    return <p className="mb-1.5 border-l-2 border-warn bg-warn-wash px-2 py-1 font-mono text-[11px]">router: {r.summary}</p>;
+  }
+  return (
+    <div className={`mb-1.5 border-l-2 px-2 py-1 ${r.escalated ? "border-warn bg-warn-wash" : "border-rule bg-sunk/60"}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="block w-full text-left font-mono text-[11px] leading-snug"
+        title="How the router chose this model"
+      >
+        <span className="text-muted">routed · </span>
+        {r.summary}
+      </button>
+      {open && (
+        <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 font-mono text-[11px] text-muted">
+          <dt>difficulty</dt>
+          <dd>
+            {r.difficulty} ({(r.difficulty_conf ?? 0).toFixed(2)})
+          </dd>
+          <dt>vision</dt>
+          <dd>{r.needs_vision ? `yes · ${r.perception ?? r.vision_source}` : "no"}</dd>
+          <dt>score</dt>
+          <dd>
+            {r.alpha === 1
+              ? `task confidence ${r.task_conf?.toFixed(2)} (no documents)`
+              : `${r.alpha} × ${r.task_conf?.toFixed(2)} + ${(1 - (r.alpha ?? 0.5)).toFixed(1)} × ${r.retrieval_relevance?.toFixed(2)} = ${r.score?.toFixed(2)}`}
+          </dd>
+          {r.escalation_reasons && r.escalation_reasons.length > 0 && (
+            <>
+              <dt>escalate?</dt>
+              <dd>{r.escalation_reasons.join("; ")}</dd>
+            </>
+          )}
+          {r.escalation_blocked && (
+            <>
+              <dt>blocked</dt>
+              <dd className="text-warn">{r.escalation_blocked}</dd>
+            </>
+          )}
+          <dt>routing time</dt>
+          <dd>{(r.latency_ms / 1000).toFixed(2)} s</dd>
+        </dl>
+      )}
     </div>
   );
 }

@@ -29,7 +29,8 @@ def app_env(tmp_path, monkeypatch, mock_llm):
     from kila.rag import models as rag_models
     from kila.rag.store import reset_store
     from kila.settings import get_settings, load_app_config
-    from tests.fakes import HashEmbedder, OverlapReranker
+    from kila.router import cascade, classifier
+    from tests.fakes import HashEmbedder, KeywordClassifier, OverlapReranker
 
     get_settings.cache_clear()
     load_app_config.cache_clear()
@@ -38,6 +39,8 @@ def app_env(tmp_path, monkeypatch, mock_llm):
     reset_store()
     rag_models.set_embedder(HashEmbedder())
     rag_models.set_reranker(OverlapReranker())
+    classifier.set_classifier(KeywordClassifier())
+    cascade.clear_availability_cache()
     from kila.main import app
 
     with TestClient(app) as c:  # runs lifespan: migrate + seed + startup event
@@ -45,6 +48,7 @@ def app_env(tmp_path, monkeypatch, mock_llm):
     reset_store()
     rag_models.set_embedder(None)
     rag_models.set_reranker(None)
+    classifier.set_classifier(None)
     reset_engine()
     reset_registry()
     get_settings.cache_clear()

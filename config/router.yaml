@@ -1,0 +1,50 @@
+# Cascade router (spec §6.2-6.3). Laya classifies; the cascade picks a model role.
+# `calibration`, `alpha` and `tau` are WRITTEN by `python -m kila.router.calibrate`; don't hand-edit
+# them without re-running it (the before/after numbers live in metrics/router_calibration.json).
+
+laya:
+  english: "models/laya"                  # local checkpoint dirs (scripts/predownload.py)
+  multilingual: "models/laya/multilingual"
+  device: auto                            # auto | cpu | cuda
+  preload: true                           # warm both checkpoints in the background at API start
+  state_chars: 1200                       # user text + attachment summaries sent to the classifier
+
+questions:
+  task_type:
+    type: choice
+    instructions: "What kind of work is the user asking for?"
+    criteria:
+      approval_note: "draft an approval/recommendation note from reports or data"
+      inspection_summary: "summarise or extract findings from an inspection report"
+      engineering_calc: "perform or verify an engineering calculation"
+      pid_digitise: "read or digitise a P&ID / engineering drawing"
+      code_task: "write, fix or explain code"
+      correspondence: "draft or reply to a letter/email/vendor message"
+      sheet_analysis: "analyse or transform spreadsheet data"
+      general_qa: "question answerable from the knowledge base"
+  difficulty:
+    type: choice            # choice, not score (score is Laya's weakest primitive)
+    instructions: "How hard is this task to do correctly?"
+    criteria: { low: "routine, single step", medium: "several steps", high: "multi-step reasoning, calculations, or high stakes" }
+  needs_vision:
+    type: choice            # choice, not noul (known noul label-bias issue)
+    instructions: "Does the task require looking at an image, scan, or drawing?"
+    criteria: { A: "yes, visual content is essential", B: "no, text is enough" }
+
+# Per-question temperature applied to Laya's probabilities (p_i ∝ p_i^(1/T)); fitted on
+# seed/router_labels.jsonl. 1.0 = uncalibrated.
+calibration:
+  task_type: 1.0
+  difficulty: 3.3
+  needs_vision: 0.5
+
+cascade:
+  alpha: 0.5                # score = alpha * task_conf + (1 - alpha) * retrieval_relevance
+  tau: 0.8                 # escalate to large_text when score < tau
+  escalate_on_high_difficulty: true
+  high_difficulty_min_conf: 0.5   # only trust a "high" label at least this confident
+  role_by_task:
+    code_task: coder
+  # Attached scans, photos and drawings need vision regardless of what the classifier says.
+  vision_attachment_kinds: [image, pdf_scanned]
+  vision_min_conf: 0.6      # ...or the classifier says A (yes) with at least this confidence

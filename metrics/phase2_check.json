@@ -1,11 +1,11 @@
 {
- "ts": "2026-09-25T05:13:56+00:00",
+ "ts": "2026-09-25T21:10:07+00:00",
  "model": "gemma4:e2b",
  "corpus": {
   "documents": 19,
   "indexed": 19,
   "chunks": 22,
-  "wall_s": 87.4
+  "wall_s": 64.3
  },
  "ocr": [
   {
@@ -13,35 +13,35 @@
    "char_similarity": 0.954,
    "ocr_conf": 0.9901,
    "skew_deg": 0.48,
-   "ocr_ms": 3165.4
+   "ocr_ms": 2049.6
   },
   {
    "report": "IR-2026-0160_scan.pdf",
    "char_similarity": 0.964,
    "ocr_conf": 0.99,
    "skew_deg": 0.22,
-   "ocr_ms": 3502.2
+   "ocr_ms": 2172.1
   },
   {
    "report": "IR-2026-0155_scan.pdf",
    "char_similarity": 0.948,
    "ocr_conf": 0.988,
    "skew_deg": 0.27,
-   "ocr_ms": 3445.3
+   "ocr_ms": 2025.6
   },
   {
    "report": "IR-2026-0151_scan.pdf",
    "char_similarity": 0.952,
    "ocr_conf": 0.9929,
    "skew_deg": -0.43,
-   "ocr_ms": 3814.7
+   "ocr_ms": 2239.2
   },
   {
    "report": "IR-2026-0147_scan.pdf",
    "char_similarity": 0.961,
    "ocr_conf": 0.992,
    "skew_deg": 1.64,
-   "ocr_ms": 10534.9
+   "ocr_ms": 3421.7
   }
  ],
  "attachment_qa": [
@@ -49,91 +49,91 @@
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 1,
    "correct": false,
-   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 12.82,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 51.69,
+   "error": null
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 2,
    "correct": false,
-   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 1.71,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 1.54,
+   "error": null
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 3,
    "correct": false,
-   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, which is $0.300 \\text{ mm/yr}$ [S1].",
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 1.64,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 1.25,
+   "error": null
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
    "try": 1,
    "correct": true,
    "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.74,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 1.41,
+   "error": null
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
    "try": 2,
    "correct": true,
    "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.64,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 1.57,
+   "error": null
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
    "try": 3,
    "correct": true,
    "answer": "The remaining life for CML C3 of E-2104 is 8.5 years [S1].",
+   "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.71,
-   "error": null,
-   "expected_doc": "IR-2026-0147_scan.pdf"
+   "wall_s": 1.58,
+   "error": null
   }
  ],
  "kb_qa": [
@@ -141,91 +141,91 @@
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 1,
    "correct": true,
-   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 10.2,
-   "error": null,
-   "expected_doc": "SOP-MNT-010.pdf"
+   "wall_s": 6.12,
+   "error": null
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 2,
    "correct": true,
-   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 7.96,
-   "error": null,
-   "expected_doc": "SOP-MNT-010.pdf"
+   "wall_s": 5.27,
+   "error": null
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 3,
    "correct": true,
-   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 8.19,
-   "error": null,
-   "expected_doc": "SOP-MNT-010.pdf"
+   "wall_s": 5.35,
+   "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 1,
    "correct": true,
    "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
+   "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 8.62,
-   "error": null,
-   "expected_doc": "SOP-OPS-001.pdf"
+   "wall_s": 6.43,
+   "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 2,
    "correct": true,
    "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
+   "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 8.18,
-   "error": null,
-   "expected_doc": "SOP-OPS-001.pdf"
+   "wall_s": 5.66,
+   "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 3,
    "correct": true,
    "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
+   "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 14.02,
-   "error": null,
-   "expected_doc": "SOP-OPS-001.pdf"
+   "wall_s": 5.77,
+   "error": null
   }
  ],
  "summary": {
@@ -233,8 +233,8 @@
   "correct": 9,
   "accuracy": 0.75,
   "with_valid_citation": 12,
-  "median_answer_s": 8.18,
-  "mean_ocr_char_similarity": 0.956,
-  "top_source_is_expected_doc": 12
+  "top_source_is_expected_doc": 12,
+  "median_answer_s": 5.35,
+  "mean_ocr_char_similarity": 0.956
  }
 }

@@ -74,6 +74,7 @@ This fetches:
 | Laptop-profile chat models: `qwen3.5:4b`, `qwen3:8b`, `qwen2.5-coder:7b` | ~13 GB | Ollama's model store |
 | Search models: bge-m3 (embedder) and bge-reranker-v2-m3 | ~4.6 GB | `models/hf/` |
 | Hindi (Devanagari) OCR model, SHA-256 checked | 7.6 MB | `models/ocr/` |
+| Laya task classifier for the router (English + multilingual checkpoints) | ~1.5 GB | `models/laya/` |
 
 English OCR models ship inside the `rapidocr` Python package; nothing to download. Add
 `--all-catalog` to get every model in `config/models.yaml` (~23 GB of chat models).
@@ -109,7 +110,7 @@ To confirm the install:
 uv run --directory services/api pytest
 ```
 
-Expect every test to pass (75 as of Phase 2). The tests need no models or network.
+Expect every test to pass (91 as of Phase 3). The tests need no models or network.
 
 ## 6. (Optional) Take it offline
 

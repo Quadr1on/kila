@@ -157,8 +157,10 @@ def test_grounded_answer_streams_sources_and_checks_citations(client_for):
     r = eng.post(f"/chat/sessions/{sid}/messages", json={"content": "Corrosion rate at nozzle N3?", "attachments": [oid]})
     evs = _sse(r.text)
     kinds = [k for k, _ in evs]
-    assert kinds[:3] == ["start", "status", "sources"] and kinds[-1] == "done"
-    sources = evs[2][1]["sources"]
+    # retrieve first, then route (relevance feeds the score), then the chosen model starts
+    assert kinds[:5] == ["status", "sources", "status", "route", "start"] and kinds[-1] == "done"
+    assert evs[3][1]["retrieval_relevance"] == evs[1][1]["retrieval_relevance"]
+    sources = evs[1][1]["sources"]
     assert sources[0]["name"] == "IR-2026-0147_scan.pdf" and sources[0]["page"] == 1 and sources[0]["snippet"]
     g = evs[-1][1]["grounding"]
     assert g["cited"] == [1] and g["invalid"] == [] and g["uncited_answer"] is False
@@ -177,7 +179,8 @@ def test_grounded_kb_answer(client_for):
     sid = admin.post("/chat/sessions", json={}).json()["id"]
     r = admin.post(f"/chat/sessions/{sid}/messages", json={"content": "PSV test interval?", "use_kb": True})
     evs = _sse(r.text)
-    assert any(s["name"] == "SOP-MNT-010.pdf" for s in evs[2][1]["sources"])
+    sources = next(d for k, d in evs if k == "sources")["sources"]
+    assert any(s["name"] == "SOP-MNT-010.pdf" for s in sources)
 
 
 def test_unready_attachment_is_rejected(client_for):

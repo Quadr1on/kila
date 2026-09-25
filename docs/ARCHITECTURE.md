@@ -176,3 +176,32 @@ nftables policy (Linux) closes the web container's egress too. The web port bind
   `config/prompts/grounded_answer.md`, temperature 0) → SSE `status` / `sources` events → the
   answer → citation check (cited / invalid / uncited). The ledger records chunk ids, citations and
   relevance, never the question or the source text.
+
+## Cascade router (Phase 3, `kila/router`, `config/router.yaml`)
+
+- **Classifier:** Laya (`laya` 0.3.20, Apache-2.0), with the English and multilingual checkpoints
+  loaded from `models/laya` (local paths only). The Laya `Router` picks the checkpoint by script.
+  One lock serialises inference. It warms in a background thread at API start.
+- **Questions** come from `config/router.yaml` (spec §6.2). Each answer's probabilities are
+  temperature-scaled (`p_i^(1/T)`, renormalised), and the **calibrated max probability** is the
+  confidence. Laya's `confidence` (normalised entropy, documented as uncalibrated) is recorded
+  but never gated on. `act_probability` is ignored.
+- **Calibration:** `python -m kila.router.calibrate` over `seed/router_labels.jsonl`. Laya outputs
+  are cached in `metrics/router_raw_probs.jsonl`, so re-fits are instant. It uses 5-fold stratified
+  CV, applies a temperature only if CV NLL improves, and picks τ from an out-of-fold sweep. It
+  writes `calibration.*` and `cascade.tau` into the YAML.
+- **Cascade** (`cascade.decide`):
+  - score = α·conf + (1−α)·relevance, or conf alone with no retrieval;
+  - role: `coder` for code, `vision` for picture tasks, else `small_text`;
+  - `small_text` → `large_text` if score < τ or difficulty is confidently high;
+  - specialist roles aren't replaced;
+  - if `large_text`'s model isn't pulled (checked on Ollama, cached 30 s), escalation is *blocked
+    and recorded*.
+- **Perception vs answering:** attached scans and photos were already OCR'd and vision-checked at
+  ingestion. `needs_vision` records that perception happened, but only picture tasks are answered
+  by the vision model. The spec's full two-stage vision→text flow lands with the Phase 4 agent.
+- **Records:** each routed message creates a `tasks` row (status routed → ok/aborted/error) and a
+  `router_decisions` row, and appends a `router.decision` ledger event (no text). The chat's
+  `llm.call` event carries the `task_id`.
+- **Chat order:** retrieval → routing → start → deltas. `role: "auto"` is the default; explicit
+  roles bypass the router.

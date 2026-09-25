@@ -69,6 +69,15 @@ local_models:
     path: "models/hf/bge-reranker-v2-m3"
     licence: Apache-2.0
     ignore: ["assets/*"]
+  # Task classifier for the cascade router (Phase 3). The repo bundles three checkpoints; we take
+  # the English root checkpoint and the multilingual one (Hindi/Kannada), not typed-decisions.
+  classifier:
+    hf_repo: "convaiinnovations/laya"
+    path: "models/laya"
+    licence: Apache-2.0
+    allow: ["rl_agent_config.json", "model.safetensors", "tokenizer/*", "encoder/*",
+            "multilingual/rl_agent_config.json", "multilingual/model.safetensors",
+            "multilingual/tokenizer/*", "multilingual/encoder/*"]
 
 # OCR recognition models not bundled in the rapidocr wheel (the default det/cls/rec are bundled).
 # PP-OCRv5 has no Kannada model; Kannada goes to the vision model (see config/ingest.yaml).

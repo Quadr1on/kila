@@ -1,0 +1,283 @@
+{
+ "ts": "2026-09-25T21:59:46+00:00",
+ "labels": 288,
+ "method": "5-fold cross-validation (stratified by task type)",
+ "questions": {
+  "task_type": {
+   "temperature": 1.0,
+   "fitted_temperature": 1.15,
+   "applied": false,
+   "fold_temperatures": [
+    1.25,
+    1.15,
+    1.2,
+    1.05,
+    1.1
+   ],
+   "before": {
+    "n": 288,
+    "accuracy": 0.8299,
+    "ece": 0.0571,
+    "mean_conf": 0.8125,
+    "nll": 0.6727
+   },
+   "after": {
+    "n": 288,
+    "accuracy": 0.8299,
+    "ece": 0.0571,
+    "mean_conf": 0.8125,
+    "nll": 0.6727
+   },
+   "laya_entropy_conf_ece": 0.1027
+  },
+  "difficulty": {
+   "temperature": 3.3,
+   "fitted_temperature": 3.3,
+   "applied": true,
+   "fold_temperatures": [
+    3.1,
+    3.1,
+    3.65,
+    3.1,
+    3.7
+   ],
+   "before": {
+    "n": 288,
+    "accuracy": 0.3715,
+    "ece": 0.2309,
+    "mean_conf": 0.6024,
+    "nll": 1.2004
+   },
+   "after": {
+    "n": 288,
+    "accuracy": 0.3715,
+    "ece": 0.076,
+    "mean_conf": 0.4239,
+    "nll": 1.0686
+   },
+   "laya_entropy_conf_ece": 0.1703
+  },
+  "needs_vision": {
+   "temperature": 0.5,
+   "fitted_temperature": 0.5,
+   "applied": true,
+   "fold_temperatures": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "before": {
+    "n": 288,
+    "accuracy": 0.8993,
+    "ece": 0.123,
+    "mean_conf": 0.7763,
+    "nll": 0.3226
+   },
+   "after": {
+    "n": 288,
+    "accuracy": 0.8993,
+    "ece": 0.0455,
+    "mean_conf": 0.8669,
+    "nll": 0.2616
+   },
+   "laya_entropy_conf_ece": 0.5747
+  }
+ },
+ "task_type_accuracy_by_language": {
+  "en": {
+   "accuracy": 0.8438,
+   "n": 256
+  },
+  "kn": {
+   "accuracy": 0.5625,
+   "n": 16
+  },
+  "hi": {
+   "accuracy": 0.875,
+   "n": 16
+  }
+ },
+ "task_type_top_confusions": [
+  [
+   "inspection_summary -> engineering_calc",
+   4
+  ],
+  [
+   "engineering_calc -> inspection_summary",
+   4
+  ],
+  [
+   "general_qa -> approval_note",
+   4
+  ],
+  [
+   "sheet_analysis -> engineering_calc",
+   4
+  ],
+  [
+   "sheet_analysis -> inspection_summary",
+   3
+  ],
+  [
+   "general_qa -> engineering_calc",
+   3
+  ],
+  [
+   "pid_digitise -> engineering_calc",
+   3
+  ],
+  [
+   "inspection_summary -> pid_digitise",
+   3
+  ]
+ ],
+ "tau_sweep": {
+  "target_kept_accuracy": 0.95,
+  "chosen_tau": 0.8,
+  "test": [
+   {
+    "tau": 0.0,
+    "escalation_rate": 0.0,
+    "kept_accuracy": 0.8299,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.05,
+    "escalation_rate": 0.0,
+    "kept_accuracy": 0.8299,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.1,
+    "escalation_rate": 0.0,
+    "kept_accuracy": 0.8299,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.15,
+    "escalation_rate": 0.0,
+    "kept_accuracy": 0.8299,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.2,
+    "escalation_rate": 0.0,
+    "kept_accuracy": 0.8299,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.25,
+    "escalation_rate": 0.0035,
+    "kept_accuracy": 0.8293,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.3,
+    "escalation_rate": 0.0208,
+    "kept_accuracy": 0.8333,
+    "hard_escalated": 0.0
+   },
+   {
+    "tau": 0.35,
+    "escalation_rate": 0.0417,
+    "kept_accuracy": 0.837,
+    "hard_escalated": 0.0147
+   },
+   {
+    "tau": 0.4,
+    "escalation_rate": 0.059,
+    "kept_accuracy": 0.8487,
+    "hard_escalated": 0.0441
+   },
+   {
+    "tau": 0.45,
+    "escalation_rate": 0.1042,
+    "kept_accuracy": 0.8566,
+    "hard_escalated": 0.1029
+   },
+   {
+    "tau": 0.5,
+    "escalation_rate": 0.1493,
+    "kept_accuracy": 0.8694,
+    "hard_escalated": 0.1471
+   },
+   {
+    "tau": 0.55,
+    "escalation_rate": 0.1944,
+    "kept_accuracy": 0.8879,
+    "hard_escalated": 0.1912
+   },
+   {
+    "tau": 0.6,
+    "escalation_rate": 0.2153,
+    "kept_accuracy": 0.8938,
+    "hard_escalated": 0.2059
+   },
+   {
+    "tau": 0.65,
+    "escalation_rate": 0.2569,
+    "kept_accuracy": 0.9112,
+    "hard_escalated": 0.2059
+   },
+   {
+    "tau": 0.7,
+    "escalation_rate": 0.2986,
+    "kept_accuracy": 0.9257,
+    "hard_escalated": 0.2206
+   },
+   {
+    "tau": 0.75,
+    "escalation_rate": 0.3333,
+    "kept_accuracy": 0.9323,
+    "hard_escalated": 0.2206
+   },
+   {
+    "tau": 0.8,
+    "escalation_rate": 0.3611,
+    "kept_accuracy": 0.9511,
+    "hard_escalated": 0.2353
+   },
+   {
+    "tau": 0.85,
+    "escalation_rate": 0.3958,
+    "kept_accuracy": 0.954,
+    "hard_escalated": 0.2794
+   },
+   {
+    "tau": 0.9,
+    "escalation_rate": 0.4618,
+    "kept_accuracy": 0.9742,
+    "hard_escalated": 0.3088
+   },
+   {
+    "tau": 0.95,
+    "escalation_rate": 0.5312,
+    "kept_accuracy": 0.9704,
+    "hard_escalated": 0.3676
+   }
+  ],
+  "chosen_on_test": {
+   "tau": 0.8,
+   "escalation_rate": 0.3611,
+   "kept_accuracy": 0.9511,
+   "hard_escalated": 0.2353
+  },
+  "note": "out-of-fold probabilities; tau itself is chosen on the same curve (one scalar)"
+ },
+ "alpha": {
+  "value": 0.5,
+  "tuned": false,
+  "note": "needs retrieval relevance per request; tuned on the Phase 8 golden set"
+ },
+ "laya_latency_ms": {
+  "device": "cpu",
+  "p50": 1325.8,
+  "p95": 1514.9,
+  "by_checkpoint_p50": {
+   "english": 1354.3,
+   "multilingual": 479.1
+  }
+ }
+}

@@ -238,5 +238,17 @@
   "embedder": "bge-m3",
   "device": "cpu",
   "chunks_per_s": 0.03
+ },
+ {
+  "ts": "2026-09-25T21:23:26+00:00",
+  "object_id": "702636a94f0c4eeab0c95649a86a30f2",
+  "sha256": "a83774a95a88b05427ce086878666dae8c2477517cb8315f0eb1c7510b420ce1",
+  "bucket": "kb",
+  "chunks": 8,
+  "pages": 3,
+  "embed_ms": 5174.9,
+  "embedder": "bge-m3",
+  "device": "cpu",
+  "chunks_per_s": 1.55
  }
 ]

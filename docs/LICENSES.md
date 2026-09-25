@@ -35,6 +35,7 @@ licence.
 | pandas | BSD-3-Clause | Spreadsheets |
 | openpyxl, python-docx | MIT | xlsx / docx reading |
 | reportlab (dev group only) | BSD-3-Clause | Generating the synthetic seed PDFs |
+| laya | Apache-2.0 | Task classifier for the cascade router (Phase 3) |
 | next, react, react-dom | MIT | Web |
 | react-markdown, remark-gfm, remark-math, rehype-katex | MIT | Rendering model replies |
 | katex | MIT | Math rendering. CSS and fonts are bundled from npm, with no CDN. |
@@ -61,8 +62,9 @@ licence.
 | BAAI/bge-reranker-v2-m3 | Apache-2.0 | reranker (Phase 2) |
 | PP-OCRv6 det/rec small, ch_ppocr_mobile cls (bundled in rapidocr) | Apache-2.0 | OCR |
 | devanagari_PP-OCRv5_rec_mobile (ONNX, via RapidOCR's release) | Apache-2.0 | Hindi OCR |
+| convaiinnovations/laya (English root + `multilingual/` checkpoints) | Apache-2.0 | Router classifier |
 
 ## Planned (later phases, licences verified before adding)
 
 LangGraph (MIT), python-pptx (MIT), Ollama (MIT), Qwen weights (per model
-card; check each tag), Laya (Apache-2.0, to be confirmed in Phase 3), gVisor (Apache-2.0).
+card; check each tag), gVisor (Apache-2.0).

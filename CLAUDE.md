@@ -21,7 +21,8 @@ The full build brief is in **docs/SPEC.md**. Read the relevant section before st
 - **PDFium is not thread-safe:** wrap every pypdfium2 call in `kila.pdfium_guard.PDFIUM_LOCK` (only the PDFium calls, never OCR).
 - Bump `PIPELINE` in `kila/ingest/service.py` whenever extraction output changes (it keys the ingestion cache).
 - Tests use fake embedder/reranker (`tests/fakes.py`) and a fake Ollama (`tests/mock_llm.py`); OCR runs for real (bundled models).
-- Real-model measurements: `uv run --directory services/api python ../../scripts/phase2_check.py` -> `metrics/phase2_check.json`.
+- Real-model measurements: `scripts/phase2_check.py` (retrieval/QA) and `scripts/phase3_check.py` (routing) -> `metrics/`.
+- Router calibration: `uv run --directory services/api python -m kila.router.calibrate` rewrites `calibration`/`tau` in `config/router.yaml`; router tests pin their own copy of the config.
 
 ## Commands
 

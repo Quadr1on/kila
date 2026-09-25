@@ -25,6 +25,8 @@ from kila.ledger.router import router as ledger_router  # noqa: E402
 from kila.models.registry import get_registry  # noqa: E402
 from kila.models.router import router as models_router  # noqa: E402
 from kila.rag.router import router as rag_router  # noqa: E402  (importing registers the index listener)
+from kila.router import classifier as router_classifier  # noqa: E402
+from kila.router.api import router as router_api  # noqa: E402
 from kila.seed import seed  # noqa: E402
 from kila.storage.router import router as storage_router  # noqa: E402
 
@@ -36,6 +38,8 @@ async def lifespan(_: FastAPI):
     get_registry().sync()  # validate models.yaml and mirror its catalog into the DB
     ledger.append("system", "system.startup", {"version": __version__})
     ingest_service.requeue_interrupted()
+    if router_classifier.config()["laya"].get("preload", True):
+        router_classifier.warm_in_background()  # ~13 s on CPU; off the request path
     yield
     ingest_service.shutdown()
     from kila.rag.store import reset_store
@@ -51,6 +55,7 @@ app.include_router(models_router)
 app.include_router(chat_router)
 app.include_router(ingest_router)
 app.include_router(rag_router)
+app.include_router(router_api)
 
 
 @app.get("/health")

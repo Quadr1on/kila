@@ -34,5 +34,113 @@
    "candidates": 1
   },
   "n_results": 1
+ },
+ {
+  "ts": "2026-09-25T18:54:31+00:00",
+  "timings_ms": {
+   "embed_query_ms": 43253.3,
+   "dense_ms": 48.8,
+   "bm25_ms": 8.7,
+   "rerank_ms": 4862.2,
+   "total_ms": 48173.0
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T21:24:57+00:00",
+  "timings_ms": {
+   "embed_query_ms": 173.6,
+   "dense_ms": 3.9,
+   "bm25_ms": 9.8,
+   "rerank_ms": 5323.9,
+   "total_ms": 5511.2
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T21:25:31+00:00",
+  "timings_ms": {
+   "embed_query_ms": 127.6,
+   "dense_ms": 2.6,
+   "bm25_ms": 0.9,
+   "rerank_ms": 3258.1,
+   "total_ms": 3389.2
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T21:26:28+00:00",
+  "timings_ms": {
+   "embed_query_ms": 155.9,
+   "dense_ms": 2.6,
+   "bm25_ms": 1.0,
+   "rerank_ms": 4748.5,
+   "total_ms": 4908.0
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T21:29:23+00:00",
+  "timings_ms": {
+   "embed_query_ms": 188.9,
+   "dense_ms": 2.5,
+   "bm25_ms": 1.0,
+   "rerank_ms": 4846.1,
+   "total_ms": 5038.5
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T22:10:14+00:00",
+  "timings_ms": {
+   "embed_query_ms": 3788.9,
+   "dense_ms": 60.8,
+   "bm25_ms": 11.0,
+   "rerank_ms": 5063.0,
+   "total_ms": 8923.7
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
  }
 ]

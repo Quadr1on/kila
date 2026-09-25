@@ -1,6 +1,7 @@
 // Chat API + a small SSE reader (fetch + ReadableStream; EventSource can't POST).
 
 import { api, ApiError } from "./api";
+import type { RouteDecision } from "./routerApi";
 
 export type ModelRole = "small_text" | "large_text" | "coder" | "vision";
 
@@ -47,7 +48,8 @@ export type ChatMessage = {
   created_at?: string;
   meta: Partial<ReplyMeta> & {
     error?: string;
-    stage?: "retrieving";
+    stage?: "retrieving" | "routing";
+    route?: RouteDecision;
     sources?: Source[]; // live, before `done` arrives
     grounding?: Grounding;
     attachments?: { object_id: string; name: string }[]; // user messages
@@ -57,10 +59,11 @@ export type ChatMessage = {
 
 export type StreamEvent =
   | { event: "start"; data: { role: ModelRole; model: string; backend: string; source: string } }
-  | { event: "status"; data: { stage: "retrieving" } }
+  | { event: "status"; data: { stage: "retrieving" | "routing" } }
+  | { event: "route"; data: RouteDecision }
   | { event: "sources"; data: { sources: Source[]; retrieval_relevance: number | null } }
   | { event: "delta"; data: { text: string } }
-  | { event: "done"; data: ReplyMeta & { grounding?: Grounding } }
+  | { event: "done"; data: ReplyMeta & { grounding?: Grounding; route?: RouteDecision } }
   | { event: "error"; data: { detail: string } };
 
 export const chatApi = {
@@ -72,7 +75,7 @@ export const chatApi = {
 export async function streamReply(
   sessionId: string,
   content: string,
-  role: ModelRole,
+  role: ModelRole | "auto",
   onEvent: (e: StreamEvent) => void,
   signal: AbortSignal,
   grounding: { attachments?: string[]; useKb?: boolean } = {},

@@ -61,14 +61,20 @@ def ollama_size(client: httpx.Client, name: str) -> int | None:
         return None
 
 
-def hf_size(client: httpx.Client, repo: str, ignore: list[str] | None) -> int | None:
+def _wanted(name: str, ignore: list[str] | None, allow: list[str] | None) -> bool:
     from fnmatch import fnmatch
 
+    if allow and not any(fnmatch(name, pat) for pat in allow):
+        return False
+    return not any(fnmatch(name, pat) for pat in ignore or [])
+
+
+def hf_size(client: httpx.Client, repo: str, ignore: list[str] | None, allow: list[str] | None = None) -> int | None:
     try:
         r = client.get(f"https://huggingface.co/api/models/{repo}", params={"blobs": "true"})
         r.raise_for_status()
         return sum(s.get("size") or 0 for s in r.json().get("siblings", [])
-                   if not any(fnmatch(s["rfilename"], pat) for pat in ignore or []))
+                   if _wanted(s["rfilename"], ignore, allow))
     except httpx.HTTPError:
         return None
 
@@ -93,13 +99,14 @@ def pull_ollama(base: str, name: str) -> None:
     print(f"    {name}: done{' ' * 40}")
 
 
-def pull_hf(repo: str, dest: Path, ignore: list[str] | None) -> None:
+def pull_hf(repo: str, dest: Path, ignore: list[str] | None, allow: list[str] | None = None) -> None:
     try:
         from huggingface_hub import snapshot_download
     except ImportError:
         sys.exit("huggingface_hub is missing: run with `uv run --group setup ...`")
     os.environ.pop("HF_HUB_OFFLINE", None)  # this script is the one place allowed online
-    snapshot_download(repo_id=repo, local_dir=str(dest), ignore_patterns=ignore or None)
+    snapshot_download(repo_id=repo, local_dir=str(dest), ignore_patterns=ignore or None,
+                      allow_patterns=allow or None)
     print(f"    {repo} -> {dest.relative_to(ROOT)}")
 
 
@@ -161,7 +168,7 @@ def main() -> int:
             if dest.exists() and any(dest.iterdir()):
                 print(f"  [have] {m['hf_repo']}  ({m['path']})")
                 continue
-            size = hf_size(c, m["hf_repo"], m.get("ignore"))
+            size = hf_size(c, m["hf_repo"], m.get("ignore"), m.get("allow"))
             total += size or 0
             todo_h.append(m)
             print(f"  [get ] {m['hf_repo']:28} {gb(size):>9}   licence {m.get('licence')}  -> {m['path']}")
@@ -189,7 +196,7 @@ def main() -> int:
     for name in todo_o:
         pull_ollama(base, name)
     for m in todo_h:
-        pull_hf(m["hf_repo"], ROOT / m["path"], m.get("ignore"))
+        pull_hf(m["hf_repo"], ROOT / m["path"], m.get("ignore"), m.get("allow"))
     for m in todo_f:
         pull_file(m["url"], m["sha256"], ROOT / m["path"])
     print("\nDone. KILA can now run with networking off.")

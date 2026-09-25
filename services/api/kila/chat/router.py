@@ -24,7 +24,9 @@ from kila.db.models import ChatSession, Message, User, utcnow
 from kila.db.session import get_engine, get_session
 from kila.ledger.chain import canonical_json
 from kila.models.registry import ROLES, get_registry
+from kila.ingest import service as ingest_service
 from kila.rag import answer
+from kila.router import cascade
 from kila.storage import store
 from kila.storage.store import StorageError
 from kila.settings import get_settings
@@ -89,7 +91,7 @@ def list_messages(session_id: str, user: User = Depends(current_user),
 
 class MessageIn(BaseModel):
     content: str = Field(min_length=1, max_length=20_000)
-    role: str = "small_text"
+    role: str = "auto"  # "auto" = the cascade router decides; or force small_text / large_text / coder / vision
     # Phase 2: grounding. Attachments must already be read + indexed (POST /kb/documents/{id}/index).
     attachments: list[str] = Field(default_factory=list, max_length=10)
     use_kb: bool = False
@@ -128,7 +130,7 @@ def _sse(event: str, data: dict[str, Any]) -> str:
 @router.post("/sessions/{session_id}/messages")
 async def send_message(session_id: str, body: MessageIn, user: User = Depends(current_user),
                        session: Session = Depends(get_session)) -> StreamingResponse:
-    if body.role not in ROLES:
+    if body.role != "auto" and body.role not in ROLES:
         raise HTTPException(400, f"unknown role {body.role}")
     cs = _own_session(session, session_id, user)
     grounded = bool(body.attachments) or body.use_kb
@@ -159,13 +161,7 @@ async def send_message(session_id: str, body: MessageIn, user: User = Depends(cu
     messages = [{"role": "system", "content": system}] + [
         {"role": m.role, "content": m.content} for m in history if m.content
     ]
-    spec = get_registry().spec(body.role)
-    # Grounded answers should copy from sources, not improvise: use the configured low temperature.
-    llm = get_registry().get_llm(body.role, **({"temperature": _rag_cfg()["answering"]["temperature"]} if grounded else {}))
-
     async def stream() -> AsyncIterator[str]:
-        yield _sse("start", {"role": spec.role, "model": spec.name, "backend": spec.backend.name,
-                             "source": spec.source})
         grounding: dict[str, Any] | None = None
         if grounded:
             yield _sse("status", {"stage": "retrieving"})
@@ -179,6 +175,26 @@ async def send_message(session_id: str, body: MessageIn, user: User = Depends(cu
             messages[-1] = {"role": "user", "content": answer.format_question(body.content, found["sources"])}
             yield _sse("sources", {"sources": [_public_source(x) for x in found["sources"]],
                                    "retrieval_relevance": found["retrieval_relevance"]})
+
+        # Routing: the cascade picks the role (manual roles skip it). Retrieval runs first because
+        # the score blends classifier confidence with retrieval relevance.
+        route: dict[str, Any] | None = None
+        task_id: str | None = None
+        role = body.role
+        if role == "auto":
+            yield _sse("status", {"stage": "routing"})
+            atts = await run_in_threadpool(_attachment_summaries, body.attachments)
+            relevance = grounding["retrieval_relevance"] if grounding else None
+            route = await run_in_threadpool(cascade.decide, body.content, atts, relevance)
+            task_id = await run_in_threadpool(cascade.record, route, session_id=session_id, actor=user.name,
+                                              envelope={"user_text_sha256": _sha(body.content), "attachments": atts})
+            role = route["chosen_role"]
+            yield _sse("route", _public_route(route, task_id))
+        spec = get_registry().spec(role)
+        # Grounded answers should copy from sources, not improvise: use the configured low temperature.
+        llm = get_registry().get_llm(role, **({"temperature": _rag_cfg()["answering"]["temperature"]} if grounded else {}))
+        yield _sse("start", {"role": spec.role, "model": spec.name, "backend": spec.backend.name,
+                             "source": spec.source})
         parts: list[str] = []
         usage: dict[str, Any] = {}
         t0 = time.perf_counter()
@@ -205,12 +221,34 @@ async def send_message(session_id: str, body: MessageIn, user: User = Depends(cu
             yield _sse("error", {"detail": _friendly(error, spec.name, spec.backend.base_url)})
         finally:
             meta = _finish(session_id, user, spec, messages, "".join(parts), usage, t0, t_first, status, error,
-                           grounding)
+                           grounding, _public_route(route, task_id) if route else None)
+            if task_id:
+                cascade.finish(task_id, status)
         if status == "ok":
             yield _sse("done", meta)
 
     return StreamingResponse(stream(), media_type="text/event-stream", headers={
         "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no", "Connection": "keep-alive"})
+
+
+def _attachment_summaries(object_ids: list[str]) -> list[dict[str, Any]]:
+    """What the router sees about each attachment: its kind, name and the first ~300 characters."""
+    out = []
+    with Session(get_engine()) as s:
+        for oid in object_ids:
+            ing = ingest_service.latest(s, oid)
+            att = ingest_service.attachment_of(ing) if ing else None
+            if att:
+                out.append({"object_id": oid, "kind": att.kind, "name": att.name, "excerpt": att.full_text[:300]})
+    return out
+
+
+def _public_route(route: dict[str, Any], task_id: str | None) -> dict[str, Any]:
+    keep = ("ok", "task_type", "task_conf", "difficulty", "difficulty_conf", "needs_vision", "vision_source",
+            "perception", "retrieval_relevance", "alpha", "tau", "score", "base_role", "chosen_role", "chosen_model",
+            "escalated", "escalation_reasons", "escalation_blocked", "summary", "latency_ms", "error")
+    return {k: route.get(k) for k in keep} | {"task_id": task_id,
+                                               "classifier_ms": (route.get("classifier") or {}).get("latency_ms")}
 
 
 def _public_source(x: dict[str, Any]) -> dict[str, Any]:
@@ -220,7 +258,7 @@ def _public_source(x: dict[str, Any]) -> dict[str, Any]:
 
 def _finish(session_id: str, user: User, spec, messages: list[dict], reply: str, usage: dict[str, Any],
             t0: float, t_first: float | None, status: str, error: str | None,
-            grounding: dict[str, Any] | None = None) -> dict[str, Any]:
+            grounding: dict[str, Any] | None = None, route: dict[str, Any] | None = None) -> dict[str, Any]:
     end = time.perf_counter()
     out_tokens = usage.get("output_tokens")
     gen_s = end - t_first if t_first else 0
@@ -231,6 +269,8 @@ def _finish(session_id: str, user: User, spec, messages: list[dict], reply: str,
         "latency_ms": round((end - t0) * 1000, 1),
         "tok_s": round(out_tokens / gen_s, 1) if out_tokens and gen_s > 0 else None,
     }
+    if route is not None:
+        meta["route"] = route
     if grounding is not None:
         cites = answer.check_citations(reply, grounding["sources"])
         meta["grounding"] = {"sources": [_public_source(x) for x in grounding["sources"]],
@@ -247,6 +287,7 @@ def _finish(session_id: str, user: User, spec, messages: list[dict], reply: str,
         **{k: meta[k] for k in ("role", "model", "backend", "status", "input_tokens", "output_tokens",
                                 "ttft_ms", "latency_ms")},
         "session_id": session_id,
+        **({"task_id": route["task_id"], "routed": True, "escalated": route["escalated"]} if route else {"routed": False}),
         "prompt_sha256": _sha(canonical_json(messages)),
         "response_sha256": _sha(reply),
         **({"error": error} if error else {}),
