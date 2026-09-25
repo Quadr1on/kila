@@ -49,6 +49,25 @@
 - Two full auto-routed chats were answered by `gemma4:e2b`, e.g. the PSV test interval, correctly.
 - Median routing time **1.17 s**.
 
+## After downloading `qwen3:8b` (escalation made real)
+
+| Measure | Result |
+|---|---|
+| `qwen3:8b` speed once loaded | **42.7 tok/s** generation, 1,126 tok/s prompt; 5.58 GB, fully in VRAM |
+| Swap small ↔ large (8 GB fits one at a time) | **8.4 s** to qwen3:8b, **8.1 s** back to gemma4:e2b |
+| Very first load after the download | 24.9 s, 1.2 tok/s on that first call while 5 GB was read from disk |
+| Acceptance re-run (`metrics/phase3_check.json`) | **8/8 wanted escalations now switch to `qwen3:8b`** (0 blocked); both auto chats escalated and answered by it |
+| Grounded QA, forced onto each model (`metrics/phase2_check_*.json`) | `gemma4:e2b` **9/12** vs `qwen3:8b` **12/12** (same questions, 3 runs each) |
+
+**The case for escalation, measured.** The question the small model always got wrong ("which CML has
+the *highest* corrosion rate?") is answered correctly by `qwen3:8b` ("C3, 0.425 mm/yr [S1]"). On Auto,
+the router escalates it (score 0.52 < τ 0.80), so the user gets the right answer.
+
+**The cost.** Each escalation on this 8 GB GPU costs about 8 s to load the large model, and the next
+small-model request pays about 8 s to swap back. The router also escalates questions the small model
+would have answered correctly (e.g. "remaining life of C3", score 0.50), because τ is tuned for a 95%
+accuracy target. A 24 GB GPU (workstation profile) keeps both models resident and removes the swap.
+
 ## What this means (honest reading)
 
 - **Task type is usable** (83%, well calibrated). Errors cluster: calcs vs code ("PSV sizing" → code), spreadsheet vs approval, and **Kannada**, where the multilingual checkpoint is weak.
@@ -71,5 +90,5 @@ Tests use a deterministic keyword classifier and a pinned copy of `router.yaml`,
 
 ## Needs your decision
 
-- **`qwen3:8b` (5.2 GB) makes escalation real.** Everything is wired and tested with a fake server. On your laptop, escalation shows as "blocked" until it's downloaded.
+- ~~Download `qwen3:8b`~~ Done: escalation now really switches models (see above).
 - Improving difficulty and Kannada means fine-tuning Laya on a larger labelled set. It's optional in the spec, and I'd do it only if the demo needs it.

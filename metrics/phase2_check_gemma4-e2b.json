@@ -1,11 +1,11 @@
 {
- "ts": "2026-09-25T22:36:33+00:00",
- "model": "qwen3:8b",
+ "ts": "2026-09-25T21:10:07+00:00",
+ "model": "gemma4:e2b",
  "corpus": {
   "documents": 19,
   "indexed": 19,
   "chunks": 22,
-  "wall_s": 61.5
+  "wall_s": 64.3
  },
  "ocr": [
   {
@@ -13,43 +13,43 @@
    "char_similarity": 0.954,
    "ocr_conf": 0.9901,
    "skew_deg": 0.48,
-   "ocr_ms": 2311.8
+   "ocr_ms": 2049.6
   },
   {
    "report": "IR-2026-0160_scan.pdf",
    "char_similarity": 0.964,
    "ocr_conf": 0.99,
    "skew_deg": 0.22,
-   "ocr_ms": 2520.9
+   "ocr_ms": 2172.1
   },
   {
    "report": "IR-2026-0155_scan.pdf",
    "char_similarity": 0.948,
    "ocr_conf": 0.988,
    "skew_deg": 0.27,
-   "ocr_ms": 2281.4
+   "ocr_ms": 2025.6
   },
   {
    "report": "IR-2026-0151_scan.pdf",
    "char_similarity": 0.952,
    "ocr_conf": 0.9929,
    "skew_deg": -0.43,
-   "ocr_ms": 2496.9
+   "ocr_ms": 2239.2
   },
   {
    "report": "IR-2026-0147_scan.pdf",
    "char_similarity": 0.961,
    "ocr_conf": 0.992,
    "skew_deg": 1.64,
-   "ocr_ms": 4115.8
+   "ocr_ms": 3421.7
   }
  ],
  "attachment_qa": [
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 1,
-   "correct": true,
-   "answer": "CML C3 (Nozzle N3) has the highest corrosion rate, which is 0.425 mm/yr [S1].",
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
    "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
@@ -57,14 +57,14 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 12.01,
+   "wall_s": 51.69,
    "error": null
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 2,
-   "correct": true,
-   "answer": "CML C3 (Nozzle N3) has the highest corrosion rate, which is 0.425 mm/yr [S1].",
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
    "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
@@ -72,14 +72,14 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 3.48,
+   "wall_s": 1.54,
    "error": null
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
    "try": 3,
-   "correct": true,
-   "answer": "CML C3 (Nozzle N3) has the highest corrosion rate, which is 0.425 mm/yr [S1].",
+   "correct": false,
+   "answer": "C2 Shell bottom, inlet end has the highest corrosion rate, and that rate is $0.300 \\text{ mm/yr}$ [S1].",
    "expected_doc": "IR-2026-0147_scan.pdf",
    "cited": [
     1
@@ -87,7 +87,7 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 3.08,
+   "wall_s": 1.25,
    "error": null
   },
   {
@@ -102,7 +102,7 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 3.1,
+   "wall_s": 1.41,
    "error": null
   },
   {
@@ -117,7 +117,7 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 3.57,
+   "wall_s": 1.57,
    "error": null
   },
   {
@@ -132,7 +132,7 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 2.89,
+   "wall_s": 1.58,
    "error": null
   }
  ],
@@ -141,7 +141,7 @@
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 1,
    "correct": true,
-   "answer": "The acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less is within plus or minus 0.15 bar(g) [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
@@ -149,14 +149,14 @@
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 9.06,
+   "wall_s": 6.12,
    "error": null
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 2,
    "correct": true,
-   "answer": "The acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less is within plus or minus 0.15 bar(g) [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
@@ -164,14 +164,14 @@
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 7.91,
+   "wall_s": 5.27,
    "error": null
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 3,
    "correct": true,
-   "answer": "The acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less is within plus or minus 0.15 bar(g) [S1].",
+   "answer": "The measured popping pressure shall be within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "expected_doc": "SOP-MNT-010.pdf",
    "cited": [
     1
@@ -179,14 +179,14 @@
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
    "retrieval_relevance": 0.7308,
-   "wall_s": 8.04,
+   "wall_s": 5.35,
    "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 1,
    "correct": true,
-   "answer": "The area must be re-tested for gas every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
@@ -194,14 +194,14 @@
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 9.94,
+   "wall_s": 6.43,
    "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 2,
    "correct": true,
-   "answer": "The area must be re-tested for gas every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
@@ -209,14 +209,14 @@
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 7.57,
+   "wall_s": 5.66,
    "error": null
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 3,
    "correct": true,
-   "answer": "The area must be re-tested for gas every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "expected_doc": "SOP-OPS-001.pdf",
    "cited": [
     1
@@ -224,17 +224,17 @@
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 7.86,
+   "wall_s": 5.77,
    "error": null
   }
  ],
  "summary": {
   "answers": 12,
-  "correct": 12,
-  "accuracy": 1.0,
+  "correct": 9,
+  "accuracy": 0.75,
   "with_valid_citation": 12,
   "top_source_is_expected_doc": 12,
-  "median_answer_s": 7.86,
+  "median_answer_s": 5.35,
   "mean_ocr_char_similarity": 0.956
  }
 }
