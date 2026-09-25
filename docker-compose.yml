@@ -24,6 +24,8 @@ services:
       - ./data:/data
       - ./config:/app/config:ro
       - ./metrics:/metrics
+      - ./models:/app/models:ro          # bge-m3, reranker, OCR models from scripts/predownload.py
+      - ./seed:/app/seed:ro              # synthetic demo corpus (Knowledge base -> Load demo corpus)
     networks: [kila_internal]
     depends_on: [ollama]
     restart: unless-stopped

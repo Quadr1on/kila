@@ -25,6 +25,16 @@ licence.
 | langchain-openai, langchain-core | MIT | `ChatOpenAI` client for local OpenAI-compatible servers |
 | httpx | BSD-3-Clause | Model-server health checks, warm-ups |
 | huggingface_hub (setup group only) | Apache-2.0 | `scripts/predownload.py`. Not installed in the runtime image. |
+| rapidocr | Apache-2.0 | Runs PP-OCR det/rec ONNX models. **Used instead of the PaddleOCR package** (PaddleOCR 3.x pulled in LGPL `python-bidi` and `crc32c`, a conflicting OpenCV and a model-download hub). |
+| onnxruntime | MIT | OCR inference |
+| opencv-python | Apache-2.0 (OpenCV) / MIT (wrapper) | Deskew, denoise |
+| qdrant-client | Apache-2.0 | Vector store (embedded mode) |
+| rank-bm25 | Apache-2.0 | Keyword search |
+| sentence-transformers, transformers | Apache-2.0 | bge-m3 embedder and bge-reranker |
+| torch (CPU build) | BSD-3-Clause | Model inference |
+| pandas | BSD-3-Clause | Spreadsheets |
+| openpyxl, python-docx | MIT | xlsx / docx reading |
+| reportlab (dev group only) | BSD-3-Clause | Generating the synthetic seed PDFs |
 | next, react, react-dom | MIT | Web |
 | react-markdown, remark-gfm, remark-math, rehype-katex | MIT | Rendering model replies |
 | katex | MIT | Math rendering. CSS and fonts are bundled from npm, with no CDN. |
@@ -49,9 +59,10 @@ licence.
 | gemma4:e2b | Apache-2.0 (as shown by `ollama show`) | small text / vision alternative |
 | BAAI/bge-m3 | MIT | embedder (Phase 2) |
 | BAAI/bge-reranker-v2-m3 | Apache-2.0 | reranker (Phase 2) |
+| PP-OCRv6 det/rec small, ch_ppocr_mobile cls (bundled in rapidocr) | Apache-2.0 | OCR |
+| devanagari_PP-OCRv5_rec_mobile (ONNX, via RapidOCR's release) | Apache-2.0 | Hindi OCR |
 
 ## Planned (later phases, licences verified before adding)
 
-LangGraph/LangChain (MIT), Qdrant (Apache-2.0), bge-m3 and bge-reranker (MIT), PaddleOCR (Apache-2.0),
-OpenCV (Apache-2.0), python-docx/openpyxl/python-pptx (MIT), Ollama (MIT), Qwen weights (per model
+LangGraph (MIT), python-pptx (MIT), Ollama (MIT), Qwen weights (per model
 card; check each tag), Laya (Apache-2.0, to be confirmed in Phase 3), gVisor (Apache-2.0).

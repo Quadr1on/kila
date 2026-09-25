@@ -21,7 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DENY = re.compile(r"\b(AGPL|GPL|SSPL|BUSL|Commons[- ]Clause|CC-BY-NC|Elastic)\b", re.I)
 WEAK = re.compile(r"\b(LGPL|MPL|EPL|CDDL)\b", re.I)
 PERMISSIVE = re.compile(
-    r"\b(MIT|MIT-0|MIT-CMU|Apache|BSD|ISC|0BSD|Zlib|Unlicense|CC0|Python-2\.0|PSF|HPND|BlueOak|CC-BY-4\.0|OFL|Unicode|WTFPL)\b",
+    r"\b(MIT|MIT-0|MIT-CMU|Apache(?:2(?:\.0)?)?|BSD|ISC|0BSD|Zlib|Unlicense|CC0|Python-2\.0|PSF|"
+    r"Python Software Foundation|HPND|BlueOak|CC-BY-4\.0|OFL|Unicode|WTFPL)\b",
     re.I,
 )
 

@@ -194,3 +194,17 @@ def test_citation_checker():
     srcs = [{"n": 1}, {"n": 2}]
     assert check_citations("A [S1]. B [S2][S7].", srcs) == {"cited": [1, 2], "invalid": [7], "uncited_answer": False}
     assert check_citations("No cites.", srcs)["uncited_answer"] is True
+
+
+def test_document_status_for_uploads(client_for):
+    eng = client_for("engineer")
+    oid = eng.post("/storage/uploads/upload", files={"file": ("n.txt", b"PV-101 calibration note")}).json()["object_id"]
+    assert eng.get(f"/kb/documents/{oid}").json()["status"] == "none"
+    _index_existing = eng.post(f"/kb/documents/{oid}/index")
+    assert _index_existing.status_code == 200
+    from kila.ingest import service as ing
+
+    ing.wait_idle(120)
+    ing.wait_idle(120)
+    d = eng.get(f"/kb/documents/{oid}").json()
+    assert d["status"] == "indexed" and d["chunk_count"] == 1

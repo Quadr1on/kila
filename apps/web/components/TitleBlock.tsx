@@ -30,15 +30,15 @@ export function TitleBlock({ title, subtitle }: { title?: string; subtitle?: str
 
   return (
     <header className="border-[1.5px] border-line bg-sheet">
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="flex flex-col justify-end gap-1 px-5 py-4 lg:border-r-[1.5px] lg:border-line">
-          <h1 className="font-display text-[34px] font-semibold uppercase leading-none tracking-[0.04em]">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="flex min-w-0 flex-col justify-end gap-1 px-5 py-4 xl:border-r-[1.5px] xl:border-line">
+          <h1 className="break-words font-display text-[34px] font-semibold uppercase leading-none tracking-[0.04em]">
             {title ?? nav?.label}
           </h1>
           <p className="max-w-[62ch] text-muted">{subtitle ?? nav?.summary}</p>
         </div>
 
-        <dl className="grid grid-cols-2 gap-px border-t-[1.5px] border-line bg-rule sm:grid-cols-3 lg:w-[520px] lg:border-t-0">
+        <dl className="grid grid-cols-2 gap-px border-t-[1.5px] border-line bg-rule sm:grid-cols-3 xl:w-[520px] xl:border-t-0">
           <Cell label="Dwg no" value={nav?.dwg ?? "—"} />
           <Cell label="Rev" value={APP_REV} />
           <Cell label="Drawn by" value={user.name === user.role ? user.name : `${user.name} · ${user.role}`} />

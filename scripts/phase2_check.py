@@ -26,13 +26,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 ATTACHMENT_QS = [
     {"q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
-     "expect": [r"\bC3\b", r"0\.425"]},
-    {"q": "What remaining life is reported for CML C3 of E-2104?", "expect": [r"8\.5"]},
+     "expect": [r"\bC3\b", r"0\.425"], "doc": "IR-2026-0147_scan.pdf"},
+    {"q": "What remaining life is reported for CML C3 of E-2104?", "expect": [r"8\.5"],
+     "doc": "IR-2026-0147_scan.pdf"},
 ]
 KB_QS = [
     {"q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
-     "expect": [r"0\.15"]},
-    {"q": "How often must the area be re-tested for gas during hot work?", "expect": [r"\b2 hours\b|\btwo hours\b"]},
+     "expect": [r"0\.15"], "doc": "SOP-MNT-010.pdf"},
+    {"q": "How often must the area be re-tested for gas during hot work?", "expect": [r"\b2 hours\b|\btwo hours\b"],
+     "doc": "SOP-OPS-001.pdf"},
 ]
 
 
@@ -113,6 +115,7 @@ def main() -> int:
                     ok = all(re.search(p, r["answer"], re.I) for p in item["expect"])
                     g = (r["meta"] or {}).get("grounding", {})
                     rows.append({"q": item["q"], "try": i + 1, "correct": ok, "answer": r["answer"],
+                                 "expected_doc": item["doc"],
                                  "cited": g.get("cited"), "invalid_citations": g.get("invalid"),
                                  "top_source": (g.get("sources") or [{}])[0].get("name"),
                                  "retrieval_relevance": g.get("retrieval_relevance"), "wall_s": r["wall_s"],
@@ -130,7 +133,7 @@ def main() -> int:
         "answers": len(qa), "correct": sum(r["correct"] for r in qa),
         "accuracy": round(sum(r["correct"] for r in qa) / len(qa), 3),
         "with_valid_citation": sum(bool(r["cited"]) and not r["invalid_citations"] for r in qa),
-        "right_document_retrieved": sum(r["top_source"] is not None for r in qa),
+        "top_source_is_expected_doc": sum(r["top_source"] == r["expected_doc"] for r in qa),
         "median_answer_s": sorted(r["wall_s"] for r in qa)[len(qa) // 2],
         "mean_ocr_char_similarity": round(sum(o["char_similarity"] for o in ocr) / len(ocr), 3) if ocr else None,
     }

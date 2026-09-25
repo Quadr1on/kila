@@ -144,7 +144,7 @@ class Extractor:
         lang = att.language if att.language in ocfg["languages"] else ocfg["default_language"]
         page = Page(index=index, method="ocr", text="", image_object_id=oid, image_size=size, skew_deg=skew)
         try:
-            engine = get_engine(lang, ocfg["languages"], ocfg["min_text_score"])
+            engine = get_engine(lang, ocfg["languages"], ocfg["min_text_score"], ocfg.get("textline_orientation", False))
             page.lines = engine.read(clean)
             page.text = lines_to_text(page.lines)
             page.ocr_conf = mean_conf(page.lines)
@@ -154,7 +154,9 @@ class Extractor:
         att.timings_ms[f"ocr_p{index}"] = round((time.perf_counter() - t0) * 1000, 1)
 
         # Second opinion from the vision model when OCR is weak, absent, or the script isn't supported.
-        weak = page.ocr_conf is None or page.ocr_conf < vcfg["low_confidence"] or len(page.text) < 20
+        weak_lines = [ln for ln in page.lines if ln.conf < vcfg.get("weak_line_below", 0.75)]
+        weak = (page.ocr_conf is None or page.ocr_conf < vcfg["low_confidence"] or len(page.text) < 20
+                or bool(weak_lines))
         if vcfg["enabled"] and (weak or lang == "kn") and self.vision_budget > 0:
             self.vision_budget -= 1
             t1 = time.perf_counter()

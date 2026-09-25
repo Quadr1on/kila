@@ -17,7 +17,11 @@ The full build brief is in **docs/SPEC.md**. Read the relevant section before st
 - The host is Windows 11 with an RTX 4060 Laptop GPU (8 GB), so use the `laptop` profile. gVisor, nftables and Tetragon aren't available locally; label the fallbacks honestly.
 - Python 3.11 via uv (`services/api/.venv`). Run commands with `uv run --directory services/api ...`.
 - Next.js 16: middleware is now `proxy.ts`. We deliberately don't use it, because it buffers upload bodies. The auth guard is in `app/(app)/layout.tsx`.
-- The API must run with a single uvicorn worker (ledger writer lock).
+- The API must run with a single uvicorn worker (ledger writer lock, embedded Qdrant file lock, one OCR worker thread).
+- **PDFium is not thread-safe:** wrap every pypdfium2 call in `kila.pdfium_guard.PDFIUM_LOCK` (only the PDFium calls, never OCR).
+- Bump `PIPELINE` in `kila/ingest/service.py` whenever extraction output changes (it keys the ingestion cache).
+- Tests use fake embedder/reranker (`tests/fakes.py`) and a fake Ollama (`tests/mock_llm.py`); OCR runs for real (bundled models).
+- Real-model measurements: `uv run --directory services/api python ../../scripts/phase2_check.py` -> `metrics/phase2_check.json`.
 
 ## Commands
 

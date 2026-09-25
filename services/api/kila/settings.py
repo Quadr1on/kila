@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -9,7 +10,9 @@ from typing import Any
 import yaml
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# Where models/, seed/, config/ live. In the repo: three levels above this file. In the Docker
+# image the package sits at /app/kila, so the image sets KILA_ROOT=/app.
+REPO_ROOT = Path(os.environ["KILA_ROOT"]) if os.environ.get("KILA_ROOT") else Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):

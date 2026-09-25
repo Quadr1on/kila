@@ -27,6 +27,20 @@ def documents(_: User = Depends(current_user)) -> list[dict[str, Any]]:
     return service.documents("kb")
 
 
+@router.get("/documents/{object_id}")
+def document_status(object_id: str, user: User = Depends(current_user),
+                    session: Session = Depends(get_session)) -> dict[str, Any]:
+    """Read/index status of one object in any bucket (the chat uses it for attachments)."""
+    try:
+        obj = store.get_object(session, object_id)
+        bucket = store.bucket_name_of(session, obj)
+        store.check_access(user, bucket, "read")
+    except StorageError as e:
+        raise HTTPException(e.status, e.detail) from e
+    doc = next((d for d in service.documents(bucket) if d["object_id"] == object_id), None)
+    return doc or {"object_id": object_id, "name": obj.original_name, "status": "none"}
+
+
 @router.get("/status")
 def status(_: User = Depends(current_user)) -> dict[str, Any]:
     cfg = service.config()

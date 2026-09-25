@@ -29,7 +29,7 @@ export const NAV: NavItem[] = [
     summary: "The tamper-evident audit ledger and evidence that nothing leaves this machine." },
 ];
 
-export const CURRENT_PHASE = 1;
+export const CURRENT_PHASE = 2;
 
 export function navFor(pathname: string): NavItem | undefined {
   return NAV.find((n) => pathname === n.href || pathname.startsWith(`${n.href}/`));

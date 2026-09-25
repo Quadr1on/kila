@@ -1,47 +1,47 @@
 {
- "ts": "2026-09-25T04:42:10+00:00",
+ "ts": "2026-09-25T05:13:56+00:00",
  "model": "gemma4:e2b",
  "corpus": {
   "documents": 19,
   "indexed": 19,
   "chunks": 22,
-  "wall_s": 52.6
+  "wall_s": 87.4
  },
  "ocr": [
   {
    "report": "IR-2026-0163_scan.pdf",
-   "char_similarity": 0.886,
-   "ocr_conf": 0.9783,
+   "char_similarity": 0.954,
+   "ocr_conf": 0.9901,
    "skew_deg": 0.48,
-   "ocr_ms": 2423.9
+   "ocr_ms": 3165.4
   },
   {
    "report": "IR-2026-0160_scan.pdf",
    "char_similarity": 0.964,
    "ocr_conf": 0.99,
    "skew_deg": 0.22,
-   "ocr_ms": 2632.9
+   "ocr_ms": 3502.2
   },
   {
    "report": "IR-2026-0155_scan.pdf",
    "char_similarity": 0.948,
    "ocr_conf": 0.988,
    "skew_deg": 0.27,
-   "ocr_ms": 2327.7
+   "ocr_ms": 3445.3
   },
   {
    "report": "IR-2026-0151_scan.pdf",
    "char_similarity": 0.952,
    "ocr_conf": 0.9929,
    "skew_deg": -0.43,
-   "ocr_ms": 2464.6
+   "ocr_ms": 3814.7
   },
   {
    "report": "IR-2026-0147_scan.pdf",
    "char_similarity": 0.961,
    "ocr_conf": 0.992,
    "skew_deg": 1.64,
-   "ocr_ms": 4110.2
+   "ocr_ms": 10534.9
   }
  ],
  "attachment_qa": [
@@ -56,8 +56,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 7.93,
-   "error": null
+   "wall_s": 12.82,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
@@ -70,8 +71,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 1.29,
-   "error": null
+   "wall_s": 1.71,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   },
   {
    "q": "Which CML on E-2104 has the highest corrosion rate, and what is that rate?",
@@ -84,8 +86,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.6487,
-   "wall_s": 1.38,
-   "error": null
+   "wall_s": 1.64,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
@@ -98,8 +101,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.29,
-   "error": null
+   "wall_s": 1.74,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
@@ -112,8 +116,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.23,
-   "error": null
+   "wall_s": 1.64,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   },
   {
    "q": "What remaining life is reported for CML C3 of E-2104?",
@@ -126,8 +131,9 @@
    "invalid_citations": [],
    "top_source": "IR-2026-0147_scan.pdf",
    "retrieval_relevance": 0.5768,
-   "wall_s": 1.19,
-   "error": null
+   "wall_s": 1.71,
+   "error": null,
+   "expected_doc": "IR-2026-0147_scan.pdf"
   }
  ],
  "kb_qa": [
@@ -135,85 +141,91 @@
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 1,
    "correct": true,
-   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
-   "retrieval_relevance": 0.7306,
-   "wall_s": 7.66,
-   "error": null
+   "retrieval_relevance": 0.7308,
+   "wall_s": 10.2,
+   "error": null,
+   "expected_doc": "SOP-MNT-010.pdf"
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 2,
    "correct": true,
-   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
-   "retrieval_relevance": 0.7306,
-   "wall_s": 6.29,
-   "error": null
+   "retrieval_relevance": 0.7308,
+   "wall_s": 7.96,
+   "error": null,
+   "expected_doc": "SOP-MNT-010.pdf"
   },
   {
    "q": "What is the acceptance tolerance on popping pressure for a PSV with a set pressure of 5 bar(g) or less?",
    "try": 3,
    "correct": true,
-   "answer": "The acceptance criteria for measured popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
+   "answer": "The acceptance tolerance for popping pressure is within plus or minus 0.15 bar for set pressures of 5 bar(g) or less [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-MNT-010.pdf",
-   "retrieval_relevance": 0.7306,
-   "wall_s": 6.46,
-   "error": null
+   "retrieval_relevance": 0.7308,
+   "wall_s": 8.19,
+   "error": null,
+   "expected_doc": "SOP-MNT-010.pdf"
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 1,
    "correct": true,
-   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 7.13,
-   "error": null
+   "wall_s": 8.62,
+   "error": null,
+   "expected_doc": "SOP-OPS-001.pdf"
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 2,
    "correct": true,
-   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 6.86,
-   "error": null
+   "wall_s": 8.18,
+   "error": null,
+   "expected_doc": "SOP-OPS-001.pdf"
   },
   {
    "q": "How often must the area be re-tested for gas during hot work?",
    "try": 3,
    "correct": true,
-   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1].",
+   "answer": "The lower explosive limit (LEL) reading shall be re-tested every 2 hours and after any break longer than 30 minutes [S1]. Oxygen shall be between 19.5 and 23.5 percent by volume [S1].",
    "cited": [
     1
    ],
    "invalid_citations": [],
    "top_source": "SOP-OPS-001.pdf",
    "retrieval_relevance": 0.7188,
-   "wall_s": 7.91,
-   "error": null
+   "wall_s": 14.02,
+   "error": null,
+   "expected_doc": "SOP-OPS-001.pdf"
   }
  ],
  "summary": {
@@ -221,8 +233,8 @@
   "correct": 9,
   "accuracy": 0.75,
   "with_valid_citation": 12,
-  "right_document_retrieved": 12,
-  "median_answer_s": 6.46,
-  "mean_ocr_char_similarity": 0.942
+  "median_answer_s": 8.18,
+  "mean_ocr_char_similarity": 0.956,
+  "top_source_is_expected_doc": 12
  }
 }

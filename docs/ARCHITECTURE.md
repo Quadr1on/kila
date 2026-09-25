@@ -114,3 +114,65 @@ nftables policy (Linux) closes the web container's egress too. The web port bind
   - A dropped connection (the Stop button) saves the partial reply and logs `status: aborted`.
 - **Compose:** `ollama` runs on `kila_internal` only, so it can't pull at runtime. Models come
   from `OLLAMA_MODELS_DIR`, which `scripts/predownload.py --yes` fills while online.
+
+## Ingestion (Phase 2, `kila/ingest`, `config/ingest.yaml`)
+
+- Stored object → `Extractor` → `Attachment` (pages, tables, code). `TaskEnvelope` = user text +
+  attachments (spec §6.1).
+- **Background jobs:** a single worker thread (OCR is CPU-heavy), with state in the `ingestions`
+  table (queued/running/done/error, page progress). Jobs interrupted by a restart are re-queued on
+  startup.
+- **Cache:** a result is reused for identical bytes (sha256 + `PIPELINE` version + language). Bump
+  `PIPELINE` whenever extraction output changes.
+- **Per type:**
+
+  | Type | How it's read |
+  |---|---|
+  | Text PDF | pypdfium2 text, normalised, running headers and footers dropped (3+ pages) |
+  | Scanned PDF / image | render 200 dpi → OpenCV median denoise + deskew (length-weighted median angle of text-line blobs) → OCR |
+  | xlsx / csv | pandas summary (columns, dtypes, preview) + records JSON + a searchable text rendering |
+  | docx | python-docx paragraphs and tables |
+  | Code / zip | file tree + text, size-capped; `../` paths rejected |
+
+- **OCR = PP-OCR models on RapidOCR/onnxruntime**, not the PaddleOCR package. PaddleOCR 3.x pulled
+  in two LGPL packages, a second conflicting OpenCV and a model-download hub. RapidOCR runs the same
+  PP-OCR det/rec models with a clean licence footprint.
+  - Model paths are always explicit (`kila/ingest/ocr.py`), so RapidOCR's own download code is
+    never reached. `test_ocr_never_touches_the_network` blocks non-loopback sockets during OCR.
+  - The English/Latin models ship inside the wheel. Devanagari (Hindi) is fetched once by
+    `predownload.py`, with its SHA-256 checked. **There's no Kannada PP-OCR model**, so Kannada goes
+    to the vision model and the UI says so.
+  - The 180° text-line orientation classifier is **off**. It flipped a correct line of a synthetic
+    scan into garbage (page accuracy 0.886 → 0.954 with it off). A regression test pins this.
+- **Rows:** detections are regrouped into rows by vertical overlap, so a table row reads as one
+  line. That matters for retrieval.
+- **Vision second opinion:** triggered by a page mean confidence < 0.80, **any** line < 0.75, too
+  little text, or Kannada. Both readings are kept, and disagreement (similarity < 0.70) is flagged,
+  never silently merged.
+- **Page images** are stored in the `thumbnails` bucket (deskewed OCR image, so the confidence-overlay
+  boxes line up).
+- **PDFium is not thread-safe.** Every pypdfium2 call holds `kila.pdfium_guard.PDFIUM_LOCK`. The lock
+  covers only PDFium calls, never OCR. This was found as an access-violation race between thumbnails
+  and the OCR worker.
+
+## Retrieval (Phase 2, `kila/rag`, `config/rag.yaml`)
+
+- **Chunks** (`kb_chunks` table): page-bounded, ~300 tokens, cut preferably at section headings,
+  then paragraphs and sentences. There's 40-token overlap within prose, but none across a heading.
+  Exact character offsets are kept for citations. The id is `"<object_id>:p<page>:<n>"`.
+- **Dense:** bge-m3 (1024-d, normalised), with title and heading prefixed to the passage → Qdrant
+  **embedded mode** (`data/qdrant`, in-process, file-locked, so a single API worker). Setting
+  `qdrant.mode: server` points at a Qdrant server instead.
+- **Keyword:** BM25 over the SQLite chunks, rebuilt lazily when the chunk set changes. The tokenizer
+  keeps engineering tokens whole (`PV-101`, `0.425`, `H2S`) and also indexes their parts.
+- **Fusion:** RRF (k=60) → cross-encoder rerank (bge-reranker-v2-m3, logits → sigmoid) → top 8.
+  - On CPU the reranker costs ~0.65 s per passage (measured), so it reranks the top **8** on CPU
+    and the top **30** on GPU (the spec's value).
+  - `retrieval_relevance` = best reranked score (0..1), which the Phase 3 router uses.
+- **Scope:** knowledge-base search is limited to the `kb` bucket. Chat attachments are indexed too,
+  but searched only when attached (`object_ids` filter). Deleted objects are filtered out at read
+  time.
+- **Grounded chat:** retrieve → numbered sources `[S1]…` in the prompt (with
+  `config/prompts/grounded_answer.md`, temperature 0) → SSE `status` / `sources` events → the
+  answer → citation check (cited / invalid / uncited). The ledger records chunk ids, citations and
+  relevance, never the question or the source text.

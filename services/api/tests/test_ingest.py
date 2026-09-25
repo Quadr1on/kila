@@ -47,6 +47,16 @@ def test_scanned_pdf_is_deskewed_and_ocrd(client_for):
     assert "ingest.queued" in events and "ingest.done" in events
 
 
+def test_regression_orientation_classifier_does_not_garble_lines(client_for):
+    """With PP-OCR's 180-degree line classifier on, this exact line came back as 'S(et d - ( d - ( g)' at
+    63% confidence. Documents are upright after deskew, so the classifier is off (config/ingest.yaml)."""
+    a = _ingest(client_for("engineer"), "IR-2026-0163_scan.pdf",
+                (SEED / "reports/IR-2026-0163_scan.pdf").read_bytes())["attachment"]
+    p = a["pages"][0]
+    assert "as-received pop 3.71 bar(g)" in p["text"]
+    assert min(ln["conf"] for ln in p["lines"]) > 0.9
+
+
 def test_spreadsheet_summary_and_rows(client_for):
     eng = client_for("engineer")
     a = _ingest(eng, "psv_register.xlsx", (SEED / "sheets/psv_register.xlsx").read_bytes())["attachment"]

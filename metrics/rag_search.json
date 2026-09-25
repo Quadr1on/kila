@@ -1,0 +1,38 @@
+[
+ {
+  "ts": "2026-09-25T05:04:44+00:00",
+  "timings_ms": {
+   "embed_query_ms": 249.2,
+   "dense_ms": 4.3,
+   "bm25_ms": 10.9,
+   "rerank_ms": 6926.7,
+   "total_ms": 7191.1
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 8
+  },
+  "n_results": 8
+ },
+ {
+  "ts": "2026-09-25T05:12:15+00:00",
+  "timings_ms": {
+   "embed_query_ms": 267.0,
+   "dense_ms": 4.9,
+   "bm25_ms": 11.1,
+   "rerank_ms": 987.7,
+   "total_ms": 1270.7
+  },
+  "rerank": {
+   "enabled": true,
+   "model": "bge-reranker-v2-m3",
+   "device": "cpu",
+   "top_n": 8,
+   "candidates": 1
+  },
+  "n_results": 1
+ }
+]

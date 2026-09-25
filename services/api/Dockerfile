@@ -5,9 +5,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never \
     HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 \
     LANGCHAIN_TRACING_V2=false DO_NOT_TRACK=1 ANONYMIZED_TELEMETRY=False \
-    KILA_DATA_DIR=/data KILA_CONFIG_DIR=/app/config
+    KILA_ROOT=/app KILA_DATA_DIR=/data KILA_CONFIG_DIR=/app/config KILA_METRICS_DIR=/metrics
 
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
+# OpenCV (used by OCR preprocessing / RapidOCR) needs these shared libraries at runtime.
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./

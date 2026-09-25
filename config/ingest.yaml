@@ -13,6 +13,10 @@ ocr:
     hi: { rec_model: "models/ocr/devanagari_PP-OCRv5_rec_mobile.onnx" }
     kn: { rec_model: null }        # PP-OCR has no Kannada model: vision model only (labelled in UI)
   min_text_score: 0.5
+  # PP-OCR's 180-degree text-line classifier. OFF for documents: after deskew every line is upright,
+  # and on the synthetic scans it flipped a correct line of IR-2026-0163, dropping it to 63% confidence
+  # and garbage text (measured: page accuracy 0.886 -> 0.954 with it off, no change on the other reports).
+  textline_orientation: false
   preprocess:
     deskew: true
     denoise: true                  # 3x3 median: removes scan speckle without eroding thin strokes
@@ -22,6 +26,7 @@ vision_fallback:
   enabled: true
   role: vision                     # model role from config/models.yaml
   low_confidence: 0.80             # page mean OCR confidence below this -> also ask the vision model
+  weak_line_below: 0.75            # ...or ANY single line below this (a page mean can hide one garbled line)
   disagreement_below: 0.70         # OCR vs vision text similarity below this -> flagged in the preview
   max_pages: 4                     # vision calls are slow on a laptop; cap per document
 

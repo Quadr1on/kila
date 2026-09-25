@@ -20,18 +20,47 @@ export type ReplyMeta = {
   ledger_seq?: number;
 };
 
+export type Source = {
+  n: number;
+  chunk_id: string;
+  object_id: string;
+  name: string;
+  title: string;
+  page: number;
+  score: number;
+  snippet: string;
+};
+
+export type Grounding = {
+  sources: Source[];
+  retrieval_relevance: number | null;
+  retrieval_ms?: Record<string, number>;
+  cited: number[];
+  invalid: number[];
+  uncited_answer: boolean;
+};
+
 export type ChatMessage = {
   id: number | string;
   role: "user" | "assistant";
   content: string;
   created_at?: string;
-  meta: Partial<ReplyMeta> & { error?: string };
+  meta: Partial<ReplyMeta> & {
+    error?: string;
+    stage?: "retrieving";
+    sources?: Source[]; // live, before `done` arrives
+    grounding?: Grounding;
+    attachments?: { object_id: string; name: string }[]; // user messages
+    use_kb?: boolean;
+  };
 };
 
 export type StreamEvent =
   | { event: "start"; data: { role: ModelRole; model: string; backend: string; source: string } }
+  | { event: "status"; data: { stage: "retrieving" } }
+  | { event: "sources"; data: { sources: Source[]; retrieval_relevance: number | null } }
   | { event: "delta"; data: { text: string } }
-  | { event: "done"; data: ReplyMeta }
+  | { event: "done"; data: ReplyMeta & { grounding?: Grounding } }
   | { event: "error"; data: { detail: string } };
 
 export const chatApi = {
@@ -46,11 +75,12 @@ export async function streamReply(
   role: ModelRole,
   onEvent: (e: StreamEvent) => void,
   signal: AbortSignal,
+  grounding: { attachments?: string[]; useKb?: boolean } = {},
 ): Promise<void> {
   const res = await fetch(`/api/chat/sessions/${sessionId}/messages`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ content, role }),
+    body: JSON.stringify({ content, role, attachments: grounding.attachments ?? [], use_kb: !!grounding.useKb }),
     credentials: "same-origin",
     signal,
   });

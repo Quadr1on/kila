@@ -9,6 +9,8 @@ import remarkMath from "remark-math";
 import "katex/dist/katex.min.css"; // bundled by Next with its fonts; no CDN
 import { api, ApiError, formatTime, notifyLedgerChanged } from "@/lib/api";
 import { chatApi, streamReply, type ChatMessage, type ChatSession, type ModelRole } from "@/lib/chat";
+import { AttachmentChips, useAttachments } from "./attachments";
+import { CiteChip, linkCitations, SourcesPanel } from "./citations";
 
 type RoleInfo = { role: ModelRole; model: string; source: string };
 const ROLE_LABEL: Record<ModelRole, string> = {
@@ -30,6 +32,9 @@ export function Chat() {
   const abortRef = useRef<AbortController | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const attach = useAttachments();
+  const [useKb, setUseKb] = useState(false);
 
   const loadRoles = useCallback(() => api<RoleInfo[]>("/models/roles").then(setRoles, () => undefined), []);
 
@@ -60,6 +65,14 @@ export function Chat() {
   async function send() {
     const content = draft.trim();
     if (!content || busy) return;
+    if (attach.busy) {
+      setError("Wait until the attached files are read and indexed.");
+      return;
+    }
+    const attachments = attach.readyIds;
+    const attachMeta = attach.items
+      .filter((a) => a.state === "ready" && a.object_id)
+      .map((a) => ({ object_id: a.object_id as string, name: a.name }));
     setBusy(true);
     setError(null);
     setDraft("");
@@ -75,7 +88,7 @@ export function Chat() {
     const pendingId = `pending-${Date.now()}`;
     setMessages((m) => [
       ...m,
-      { id: `u-${Date.now()}`, role: "user", content, meta: {} },
+      { id: `u-${Date.now()}`, role: "user", content, meta: { attachments: attachMeta, use_kb: useKb } },
       { id: pendingId, role: "assistant", content: "", meta: { role } },
     ]);
     const patch = (fn: (m: ChatMessage) => ChatMessage) =>
@@ -90,11 +103,16 @@ export function Chat() {
         role,
         (e) => {
           if (e.event === "start") patch((m) => ({ ...m, meta: { ...m.meta, model: e.data.model } }));
+          else if (e.event === "status") patch((m) => ({ ...m, meta: { ...m.meta, stage: e.data.stage } }));
+          else if (e.event === "sources")
+            patch((m) => ({ ...m, meta: { ...m.meta, stage: undefined, sources: e.data.sources } }));
           else if (e.event === "delta") patch((m) => ({ ...m, content: m.content + e.data.text }));
           else if (e.event === "done") patch((m) => ({ ...m, meta: e.data }));
-          else if (e.event === "error") patch((m) => ({ ...m, meta: { ...m.meta, status: "error", error: e.data.detail } }));
+          else if (e.event === "error")
+            patch((m) => ({ ...m, meta: { ...m.meta, stage: undefined, status: "error", error: e.data.detail } }));
         },
         ctrl.signal,
+        { attachments, useKb },
       );
     } catch (e) {
       if (ctrl.signal.aborted) {
@@ -196,12 +214,42 @@ export function Chat() {
           </p>
         )}
 
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-rule px-3 pt-2.5">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={busy}
+            className="border border-line px-2.5 py-1 text-[13px] hover:bg-sunk disabled:opacity-50"
+          >
+            Attach files
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => {
+              if (e.target.files) attach.add(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <label className="flex items-center gap-2 text-[13px]">
+            <input type="checkbox" checked={useKb} onChange={(e) => setUseKb(e.target.checked)} disabled={busy} />
+            Search the knowledge base
+          </label>
+          {(useKb || attach.readyIds.length > 0) && (
+            <span className="text-[12px] text-muted">Answers cite their sources as [S1], [S2]…</span>
+          )}
+          <div className="basis-full">
+            <AttachmentChips items={attach.items} onRemove={busy ? undefined : attach.remove} />
+          </div>
+        </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             send();
           }}
-          className="flex items-end gap-2 border-t border-rule p-3"
+          className="flex items-end gap-2 p-3"
         >
           <label className="sr-only" htmlFor="chat-input">
             Message
@@ -232,7 +280,8 @@ export function Chat() {
           ) : (
             <button
               type="submit"
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || attach.busy}
+              title={attach.busy ? "Waiting for attached files to be read" : undefined}
               className="h-[52px] bg-control px-5 font-medium text-control-ink disabled:opacity-50"
             >
               Send
@@ -246,29 +295,58 @@ export function Chat() {
 
 function Turn({ m, streaming }: { m: ChatMessage; streaming: boolean }) {
   if (m.role === "user") {
+    const files = m.meta.attachments ?? [];
     return (
       <div className="ml-auto max-w-[80%] border border-rule bg-sunk px-3.5 py-2.5">
         <div className="cell-label mb-1">You</div>
         <p className="whitespace-pre-wrap text-[14px]">{m.content}</p>
+        {(files.length > 0 || m.meta.use_kb) && (
+          <p className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-[11px] text-muted">
+            {files.map((f) => (
+              <Link key={f.object_id} href={`/files/${f.object_id}`} className="border border-rule px-1.5 hover:text-ink">
+                {f.name}
+              </Link>
+            ))}
+            {m.meta.use_kb && <span className="border border-rule px-1.5">knowledge base</span>}
+          </p>
+        )}
       </div>
     );
   }
   const meta = m.meta;
+  const sources = meta.grounding?.sources ?? meta.sources ?? [];
+  const grounded = !!meta.grounding || !!meta.sources || meta.stage === "retrieving";
   return (
     <div className="max-w-[88%]">
       <div className="cell-label mb-1">
         KILA{meta.model ? ` · ${meta.model}` : ""}
+        {grounded ? " · answering from documents" : ""}
       </div>
+      {meta.stage === "retrieving" && (
+        <p className="text-sm text-muted">Searching the documents… (reranking takes a few seconds on CPU)</p>
+      )}
       {m.content ? (
         <div className="kila-prose text-[14px]">
-          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[[rehypeKatex, { throwOnError: false }]]}>
-            {normaliseMath(m.content)}
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[[rehypeKatex, { throwOnError: false }]]}
+            components={{
+              a: ({ href, children }) =>
+                href?.startsWith("#cite-") ? (
+                  <CiteChip n={Number(href.slice(6))} sources={sources} />
+                ) : (
+                  <a href={href}>{children}</a>
+                ),
+            }}
+          >
+            {linkCitations(normaliseMath(m.content))}
           </ReactMarkdown>
           {streaming && <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-ink/60" aria-hidden />}
         </div>
-      ) : streaming && meta.status !== "error" ? (
+      ) : streaming && meta.status !== "error" && meta.stage !== "retrieving" ? (
         <p className="text-sm text-muted">Waiting for the model… the first reply after a swap includes loading it.</p>
       ) : null}
+      {grounded && meta.stage !== "retrieving" && <SourcesPanel g={meta.grounding} live={meta.sources} />}
       {meta.status === "error" && (
         <p className="mt-1 border-l-2 border-alarm bg-alarm-wash px-3 py-2 text-sm">
           {meta.error ?? "The reply failed."}
@@ -322,7 +400,8 @@ function EmptyThread({ onPick }: { onPick: (t: string) => void }) {
         ledger as hashes and token counts.
       </p>
       <p className="mt-2 text-sm text-muted">
-        Reading files, planning with tools and drafting documents come in later phases.
+        Attach a scanned report or tick <b>Search the knowledge base</b> to get answers that cite the exact page.
+        Planning with tools and drafting documents come in phase 4.
       </p>
       <ul className="mt-5 space-y-2">
         {STARTERS.map((s) => (

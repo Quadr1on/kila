@@ -28,7 +28,7 @@ from kila.settings import get_settings
 from kila.storage import store
 
 log = logging.getLogger(__name__)
-PIPELINE = "ingest-v2"  # bump when extraction output changes, to invalidate the cache
+PIPELINE = "ingest-v3"  # bump when extraction output changes, to invalidate the cache
 
 _pool: ThreadPoolExecutor | None = None
 _pool_lock = threading.Lock()

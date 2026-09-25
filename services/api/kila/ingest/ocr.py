@@ -30,7 +30,7 @@ def _bundled_dir() -> Path:
 
 
 class OcrEngine:
-    def __init__(self, rec_model: str, min_score: float = 0.5):
+    def __init__(self, rec_model: str, min_score: float = 0.5, use_cls: bool = False):
         from rapidocr import RapidOCR
 
         bundled = _bundled_dir()
@@ -46,11 +46,12 @@ class OcrEngine:
         params = {k: str(v) for k, v in paths.items()}
         params.update({"Global.log_level": "error", "Global.text_score": min_score})
         self._engine = RapidOCR(params=params)
+        self._use_cls = use_cls
         self._lock = threading.Lock()  # onnxruntime sessions are shared; keep one page at a time
 
     def read(self, img_rgb: np.ndarray) -> list[OcrLine]:
         with self._lock:
-            out = self._engine(img_rgb)
+            out = self._engine(img_rgb, use_cls=self._use_cls)
         if out.txts is None:
             return []
         return [OcrLine(text=t, conf=round(float(s), 4), box=np.asarray(b).round(1).tolist())
@@ -66,14 +67,15 @@ _engines: dict[str, OcrEngine] = {}
 _engines_lock = threading.Lock()
 
 
-def get_engine(lang: str, languages: dict, min_score: float) -> OcrEngine:
+def get_engine(lang: str, languages: dict, min_score: float, use_cls: bool = False) -> OcrEngine:
     spec = languages.get(lang)
     if spec is None or spec.get("rec_model") is None:
         raise OcrUnavailable(f"no OCR recognition model for language '{lang}'")
+    key = f"{lang}:{use_cls}"
     with _engines_lock:
-        if lang not in _engines:
-            _engines[lang] = OcrEngine(spec["rec_model"], min_score)
-        return _engines[lang]
+        if key not in _engines:
+            _engines[key] = OcrEngine(spec["rec_model"], min_score, use_cls)
+        return _engines[key]
 
 
 # ------------------------------------------------------------------ layout

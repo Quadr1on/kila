@@ -102,6 +102,13 @@ export function FilePreview({
       </dl>
 
       <div className="flex flex-wrap gap-2 px-4 py-3">
+        <Link
+          href={`/files/${obj.object_id}`}
+          className="bg-control px-3 py-1 text-sm font-medium text-control-ink"
+          title="See the text KILA read from this file, with OCR confidence per line"
+        >
+          Extracted text
+        </Link>
         <a
           href={`/api/storage/object/${obj.object_id}`}
           download={obj.original_name}
